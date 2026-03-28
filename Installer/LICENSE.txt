@@ -1,0 +1,7 @@
+Ceylon Electricity Board - Haliela
+Petty Cash Management System - Internal Use Only
+
+This software is developed exclusively for internal use at CEB Haliela.
+All rights reserved. Unauthorized distribution or copying is prohibited.
+
+For support: homemadeict@gmail.com

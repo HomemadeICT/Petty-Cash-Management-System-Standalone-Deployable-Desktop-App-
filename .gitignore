@@ -1,0 +1,32 @@
+# Visual Studio build artifacts
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Executables and Libraries
+*.exe
+*.dll
+*.pdb
+
+# SQLite Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Windows-specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Obsidian settings
+.obsidian/
+
+# Packaging/Installer artifacts
+Installer/Output/
+Installer/Published/
+Installer/Prerequisites/
+*.iss

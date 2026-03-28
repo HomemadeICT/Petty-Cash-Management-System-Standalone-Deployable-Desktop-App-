@@ -1,0 +1,16 @@
+# This file defines code owners for the repository.
+# When a pull request is created, the team mentioned here will be automatically
+# requested to review it.
+
+# Global owner for all files
+* @HomemadeICT
+
+# Documentation
+/docs/ @HomemadeICT
+/*.md @HomemadeICT
+
+# Installer
+/Installer/ @HomemadeICT
+
+# GitHub configuration
+/.github/ @HomemadeICT

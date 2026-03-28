@@ -1,0 +1,231 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>PettyCash.DesktopApp</RootNamespace>
+    <StartupObject>PettyCash.DesktopApp.Program</StartupObject>
+    <UseWindowsForms>true</UseWindowsForms>
+    <MyType>WindowsForms</MyType>
+
+    <AssemblyTitle>Petty Cash Management System</AssemblyTitle>
+    <Company>Ceylon Electricity Board - Haliela</Company>
+    <Product>Petty Cash Management System</Product>
+    <Version>1.0.0</Version>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <ApplicationIcon>Assets\Icons\PettyCash..ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Import Include="System.Data" />
+    <Import Include="System.Drawing" />
+    <Import Include="System.Windows.Forms" />
+  </ItemGroup>
+
+  <!-- NuGet Packages -->
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.119" />
+    <PackageReference Include="ClosedXML" Version="0.102.3" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- Include all files from PettyCash.DesktopApp folder -->
+  <ItemGroup>
+    <!-- Forms -->
+    <Compile Include="PettyCash.DesktopApp\Forms\LoginForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\LoginForm.Designer.vb">
+      <DependentUpon>LoginForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\DashboardForm.vb" />
+    <Compile Include="PettyCash.DesktopApp\Forms\DashboardForm.Designer.vb">
+      <DependentUpon>DashboardForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\ExpenseEntryForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\ExpenseEntryForm.Designer.vb">
+      <DependentUpon>ExpenseEntryForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\ReportViewerForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\ReportViewerForm.Designer.vb">
+      <DependentUpon>ReportViewerForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\AdminSettingsForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\AdminSettingsForm.Designer.vb">
+      <DependentUpon>AdminSettingsForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\UserManagementForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\UserManagementForm.Designer.vb">
+      <DependentUpon>UserManagementForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\UserEditForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\UserEditForm.Designer.vb">
+      <DependentUpon>UserEditForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\UserPermissionForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\UserPermissionForm.Designer.vb">
+      <DependentUpon>UserPermissionForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\BackupForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\BackupForm.Designer.vb">
+      <DependentUpon>BackupForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\BulkExportForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\SinhalaMonthSettingsForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\SinhalaMonthSettingsForm.Designer.vb">
+      <DependentUpon>SinhalaMonthSettingsForm.vb</DependentUpon>
+    </Compile>
+    
+    <!-- Form Resources -->
+    <EmbeddedResource Include="PettyCash.DesktopApp\Forms\LoginForm.resx">
+      <DependentUpon>LoginForm.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PettyCash.DesktopApp\Forms\DashboardForm.resx">
+      <DependentUpon>DashboardForm.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PettyCash.DesktopApp\Forms\ExpenseEntryForm.resx">
+      <DependentUpon>ExpenseEntryForm.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PettyCash.DesktopApp\Forms\ReportViewerForm.resx">
+      <DependentUpon>ReportViewerForm.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PettyCash.DesktopApp\Forms\AdminSettingsForm.resx">
+      <DependentUpon>AdminSettingsForm.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PettyCash.DesktopApp\Forms\UserEditForm.resx" />
+    <EmbeddedResource Include="PettyCash.DesktopApp\Forms\UserManagementForm.resx" />
+    <EmbeddedResource Include="PettyCash.DesktopApp\Forms\UserPermissionForm.resx" />
+    <EmbeddedResource Include="PettyCash.DesktopApp\Forms\BackupForm.resx">
+      <DependentUpon>BackupForm.vb</DependentUpon>
+    </EmbeddedResource>
+
+    <!-- Services -->
+
+    <Compile Include="PettyCash.DesktopApp\Services\ExpenseService.vb" />
+    <Compile Include="PettyCash.DesktopApp\Services\ReportService.vb" />
+    <Compile Include="PettyCash.DesktopApp\Services\ValidationService.vb" />
+    <Compile Include="PettyCash.DesktopApp\Services\AuditService.vb" />
+    <Compile Include="PettyCash.DesktopApp\Services\NotificationService.vb" />
+    <Compile Include="PettyCash.DesktopApp\Services\WhatsAppService.vb" />
+    <Compile Include="PettyCash.DesktopApp\Services\PermissionService.vb" />
+    <Compile Include="PettyCash.DesktopApp\Services\UserManagementService.vb" />
+    <Compile Include="PettyCash.DesktopApp\Services\BackupService.vb" />
+    <Compile Include="PettyCash.DesktopApp\Services\ExcelExportService.vb" />
+    <Compile Include="PettyCash.DesktopApp\Services\BulkExportService.vb" />
+    
+    <!-- Repositories -->
+    <Compile Include="PettyCash.DesktopApp\Repositories\DbContext.vb" />
+    <Compile Include="PettyCash.DesktopApp\Repositories\IRepository.vb" />
+    <Compile Include="PettyCash.DesktopApp\Repositories\UserRepository.vb" />
+    <Compile Include="PettyCash.DesktopApp\Repositories\ExpenseRepository.vb" />
+    <Compile Include="PettyCash.DesktopApp\Repositories\CategoryRepository.vb" />
+    <Compile Include="PettyCash.DesktopApp\Repositories\AuditLogRepository.vb" />
+    <Compile Include="PettyCash.DesktopApp\Repositories\PermissionRepository.vb" />
+    
+    <!-- Models -->
+    <Compile Include="PettyCash.DesktopApp\Models\User.vb" />
+    <Compile Include="PettyCash.DesktopApp\Models\Expense.vb" />
+    <Compile Include="PettyCash.DesktopApp\Models\Category.vb" />
+    <Compile Include="PettyCash.DesktopApp\Models\AuditLog.vb" />
+    <Compile Include="PettyCash.DesktopApp\Models\OperationResult.vb" />
+    <Compile Include="PettyCash.DesktopApp\Models\ValidationResult.vb" />
+    <Compile Include="PettyCash.DesktopApp\Models\Permission.vb" />
+    
+    <!-- Utilities -->
+    <Compile Include="PettyCash.DesktopApp\Utilities\Constants.vb" />
+    <Compile Include="PettyCash.DesktopApp\Utilities\SessionManager.vb" />
+    <Compile Include="PettyCash.DesktopApp\Utilities\ConfigManager.vb" />
+    <Compile Include="PettyCash.DesktopApp\Utilities\Enums.vb" />
+    <Compile Include="PettyCash.DesktopApp\Utilities\ReportHtmlGenerator.vb" />
+    <Compile Include="PettyCash.DesktopApp\Utilities\PermissionKeys.vb" />
+    <Compile Include="PettyCash.DesktopApp\Utilities\SinhalaMonthSettings.vb" />
+    
+    <!-- Program Entry Point -->
+    <Compile Include="PettyCash.DesktopApp\Program.vb" />
+  </ItemGroup>
+
+  <!-- App.config — use standard MSBuild convention so it becomes {AssemblyName}.dll.config -->
+  <ItemGroup>
+    <None Include="PettyCash.DesktopApp\App.config">
+      <Link>App.config</Link>
+    </None>
+    <None Include="SQL\schema_sqlite.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!-- After publish: copy .dll.config to .exe.config (self-contained .NET 8 uses .exe.config) -->
+  <Target Name="CopyExeConfig" AfterTargets="Publish">
+    <PropertyGroup>
+      <_DllConfig>$(PublishDir)$(AssemblyName).dll.config</_DllConfig>
+      <_ExeConfig>$(PublishDir)$(AssemblyName).exe.config</_ExeConfig>
+    </PropertyGroup>
+    <Copy SourceFiles="$(_DllConfig)" DestinationFiles="$(_ExeConfig)" Condition="Exists('$(_DllConfig)')" />
+  </Target>
+
+  <!-- Exclude root-level duplicate files -->
+  <ItemGroup>
+    <Compile Remove="Program.vb" />
+    <Compile Remove="DbContext.vb" />
+    <Compile Remove="User.vb" />
+    <Compile Remove="Expense.vb" />
+    <Compile Remove="Category.vb" />
+    <Compile Remove="AuditLog.vb" />
+    <Compile Remove="AuthService.vb" />
+    <Compile Remove="ExpenseService.vb" />
+    <Compile Remove="ReportService.vb" />
+    <Compile Remove="ValidationService.vb" />
+    <Compile Remove="AuditService.vb" />
+    <Compile Remove="NotificationService.vb" />
+    <Compile Remove="UserRepository.vb" />
+    <Compile Remove="ExpenseRepository.vb" />
+    <Compile Remove="CategoryRepository.vb" />
+    <Compile Remove="AuditLogRepository.vb" />
+    <Compile Remove="IRepository.vb" />
+    <Compile Remove="Constants.vb" />
+    <Compile Remove="ConfigManager.vb" />
+    <Compile Remove="Enums.vb" />
+    <Compile Remove="OperationResult.vb" />
+    <Compile Remove="Form1.vb" />
+    <Compile Remove="Form1.Designer.vb" />
+    <Compile Remove="ApplicationEvents.vb" />
+    <Compile Remove="BulkExportService.vb" />
+  </ItemGroup>
+
+  <!-- My Project Files -->
+  <ItemGroup>
+    <Compile Update="My Project\Application.Designer.vb">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/HomemadeICT/Petty-Cash-Management--CEB-Haliela/tree/main/docs
+    about: View full documentation
+  - name: 🏠 Homepage  
+    url: https://github.com/HomemadeICT/Petty-Cash-Management--CEB-Haliela
+    about: Return to project homepage
+  - name: 💬 Discussions
+    url: https://github.com/HomemadeICT/Petty-Cash-Management--CEB-Haliela/discussions
+    about: Start a discussion or ask questions
