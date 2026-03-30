@@ -21,7 +21,7 @@ The system shall allow users to enter the following information for each expense
 | **Date** | Date | Yes | Cannot be future date, within current month |
 | **Bill Number** | Text (50 chars) | Yes | Unique within month |
 | **Amount** | Decimal (10,2) | Yes | > 0, ≤ 5000 |
-| **Category Code** | Dropdown | Yes | E5200, E5300, or E7800 |
+| **Category Code** | Dropdown | Yes | Admin defined (Dynamic) |
 | **Description** | Text (500 chars) | Yes | Min 10 characters |
 
 #### FR1.2: Real-Time Validation
@@ -43,11 +43,7 @@ The system shall allow users to enter the following information for each expense
 **User Role:** System (Automatic)
 
 #### FR2.1: Category-Wise Totals
-System shall automatically calculate subtotals for each category:
-- Total for E5200 (Vehicle parts)
-- Total for E5300 (Office items)
-- Total for E7800 (Physical Hardware stuff for workplace
-E 7510 - Treatments and staff
+System shall automatically calculate subtotals for every category defined in the system. The report adjusts dynamically to show only categories with expenses in the current month.
 
 #### FR2.2: Monthly Totals
 System shall calculate:
@@ -197,7 +193,35 @@ System shall log:
 #### FR7.2: View Audit Log
 - Admin shall be able to view complete audit trail
 - Logs shall be searchable by date range, user, action type
-- Logs shall be exportable (future enhancement)
+
+---
+
+### FR8: Category Management
+
+**Priority:** MEDIUM  
+**User Role:** Admin
+
+#### FR8.1: Create/Edit Category
+- Admin shall be able to add new expense categories (Code + Description).
+- Admin shall be able to update existing category descriptions.
+
+#### FR8.2: Delete Category
+- Admin shall be able to delete categories that have no associated expenses.
+
+---
+
+### FR9: Backup & Restore
+
+**Priority:** HIGH  
+**User Role:** Admin
+
+#### FR9.1: Database Backup
+- System shall allow Admin to manually trigger a database backup with a single click.
+- Backup file shall be a portable SQLite file with timestamped name.
+
+#### FR9.2: Database Restore
+- System shall allow Admin to select a past backup file and restore the entire database.
+- System shall prompt for confirmation before overwriting current data.
 
 ---
 
@@ -357,7 +381,7 @@ The following features are explicitly **NOT** included in this version:
 - ❌ Mobile application
 - ❌ Web browser access
 - ❌ Multiple currency support
-- ❌ Custom category codes
+- ✅ Custom category codes — **Implemented v1.2.0**
 - ❌ Integration with accounting systems
 - ❌ SMS notifications
 - ❌ Receipt/invoice image uploading

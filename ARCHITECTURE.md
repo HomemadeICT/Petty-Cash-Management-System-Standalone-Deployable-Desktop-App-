@@ -64,7 +64,8 @@ All user-facing Windows Forms. Responsibilities:
 | `UserManagementForm` | List users; create, activate, deactivate accounts |
 | `UserEditForm` | Edit user details and role |
 | `UserPermissionForm` | Granular per-user permission toggles (22 keys) |
-| `BackupForm` | One-click SQLite database backup |
+| `CategoryManagementForm` | Admin tool to add/edit/delete expense categories |
+| `BackupForm` | One-click SQLite database backup and full restore |
 | `BulkExportForm` | Multi-month XLSX export |
 
 ---
@@ -134,6 +135,15 @@ Plain data objects (POCOs) passed between layers.
 ---
 
 ## Key Design Decisions
+
+### Decoupled Reporting Architecture
+
+One of the most significant architectural improvements in v1.3.0 was the decoupling of the **Transaction Date** from the **Report Month**.
+
+- **Schema:** Added `report_month` and `report_year` columns to the database.
+- **Filtering:** All dashboard and report queries filter by these explicit tracking columns rather than deriving them from the record's entry date.
+- **The "December Rule":** This allows Dec 15–31 expenses to be assigned to the **January** report for year-end processing.
+- **Universal Logic:** The `ReportService` now dynamically discovers categories in the month's data, ensuring the system is zero-maintenance when new categories are added.
 
 ### Repository Pattern
 Decouples business logic from SQL. If we ever needed to swap SQLite for PostgreSQL or a REST API, only the repository layer changes.

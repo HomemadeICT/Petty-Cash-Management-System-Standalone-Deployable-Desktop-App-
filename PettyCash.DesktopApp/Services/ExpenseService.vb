@@ -95,8 +95,8 @@ Public Class ExpenseService
                 Return result
             End If
 
-            ' Check if month is finalized (BR9)
-            If Not _validationService.CheckMonthNotFinalized(expense.EntryDate.Year, expense.EntryDate.Month) Then
+            ' Check if month is finalized (BR9) — use report month, not entry date
+            If Not _validationService.CheckMonthNotFinalized(expense.ReportYear, expense.ReportMonth) Then
                 result.IsSuccess = False
                 result.ErrorMessage = "Cannot edit expenses in a finalized month."
                 Return result
@@ -153,8 +153,8 @@ Public Class ExpenseService
                 Return result
             End If
 
-            ' Check if month is finalized
-            If Not _validationService.CheckMonthNotFinalized(expense.EntryDate.Year, expense.EntryDate.Month) Then
+            ' Check if month is finalized (BR9) — use report month, not entry date
+            If Not _validationService.CheckMonthNotFinalized(expense.ReportYear, expense.ReportMonth) Then
                 result.IsSuccess = False
                 result.ErrorMessage = "Cannot delete expenses in a finalized month."
                 Return result
@@ -216,7 +216,7 @@ Public Class ExpenseService
     ''' </summary>
     Public Function GetRemainingBalance(year As Integer, month As Integer) As Decimal
         Dim total = GetMonthlyTotal(year, month)
-        Return ValidationService.MONTHLY_LIMIT - total
+        Return Constants.MONTHLY_LIMIT - total
     End Function
 
     ''' <summary>

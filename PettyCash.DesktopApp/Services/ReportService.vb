@@ -45,18 +45,26 @@ Public Class ReportService
 
         ' Get all expenses for the month
         Dim expenses = _expenseRepository.GetByMonth(year, month)
+        
+        ' Compile unique categories used in this month's expenses
+        Dim uniqueCodes = expenses.Select(Function(e) e.CategoryCode).Distinct().OrderBy(Function(c) c).ToList()
+        report.Categories = uniqueCodes.Select(Function(code) New CategorySummaryDTO With {
+            .CategoryCode = code,
+            .CategoryName = GetCategoryName(code)
+        }).ToList()
+
         report.Entries = expenses.Select(Function(e) New ReportEntryDTO With {
             .EntryDate = e.EntryDate,
             .BillNo = e.BillNo,
             .CategoryCode = e.CategoryCode,
-            .CategoryName = GetCategoryName(e.CategoryCode),
+            .CategoryName = report.Categories.FirstOrDefault(Function(c) c.CategoryCode = e.CategoryCode)?.CategoryName,
             .Description = e.Description,
             .Amount = e.Amount
         }).OrderBy(Function(e) e.EntryDate).ThenBy(Function(e) e.BillNo).ToList()
 
         ' Calculate totals
         report.GrandTotal = expenses.Sum(Function(e) e.Amount)
-        report.MonthlyLimit = ValidationService.MONTHLY_LIMIT
+        report.MonthlyLimit = Constants.MONTHLY_LIMIT
         report.RemainingBalance = report.MonthlyLimit - report.GrandTotal
         report.TotalBillCount = expenses.Count
 
@@ -64,7 +72,7 @@ Public Class ReportService
         report.CategorySummaries = CalculateCategorySummaries(expenses)
 
         ' Get high-value bills
-        report.HighValueBills = expenses.Where(Function(e) e.Amount >= ValidationService.HIGH_VALUE_THRESHOLD) _
+        report.HighValueBills = expenses.Where(Function(e) e.Amount >= Constants.HIGH_VALUE_THRESHOLD) _
             .OrderByDescending(Function(e) e.Amount).ToList()
 
         Return report
@@ -83,7 +91,7 @@ Public Class ReportService
     ''' </summary>
     Public Function GetHighValueBillsReport(year As Integer, month As Integer) As List(Of Expense)
         Dim expenses = _expenseRepository.GetByMonth(year, month)
-        Return expenses.Where(Function(e) e.Amount >= ValidationService.HIGH_VALUE_THRESHOLD) _
+        Return expenses.Where(Function(e) e.Amount >= Constants.HIGH_VALUE_THRESHOLD) _
             .OrderByDescending(Function(e) e.Amount).ToList()
     End Function
 
@@ -155,13 +163,9 @@ Public Class ReportService
     End Function
 
     Private Function GetCategoryName(code As String) As String
-        Select Case code
-            Case "E5200" : Return "Vehicle Parts"
-            Case "E5300" : Return "Office Items"
-            Case "E7800" : Return "Physical Hardware"
-            Case "E7510" : Return "Treatments & Staff"
-            Case Else : Return "Unknown"
-        End Select
+        Dim category = _categoryRepository.GetByCode(code)
+        If category IsNot Nothing Then Return category.CategoryName
+        Return code ' Fallback to code if name not found
     End Function
 
     Private Function Truncate(text As String, maxLength As Integer) As String
@@ -188,6 +192,7 @@ Public Class MonthlyReportDTO
     Public Property GeneratedAt As DateTime
 
     Public Property Entries As List(Of ReportEntryDTO)
+    Public Property Categories As List(Of CategorySummaryDTO) ' All categories in use for this report
     Public Property CategorySummaries As List(Of CategorySummaryDTO)
     Public Property HighValueBills As List(Of Expense)
 

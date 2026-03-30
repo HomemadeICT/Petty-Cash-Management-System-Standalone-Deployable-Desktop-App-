@@ -53,6 +53,18 @@ When a user clicks "Save" on a new expense, the following flow occurs:
 
 ---
 
+## 📅 Decoupled Reporting Architecture
+
+A key feature of the system is the decoupling of the **Transaction Date** from the **Report Month**.
+
+### Cross-Month Posting Logic
+- **Database Schema:** The `petty_cash_entries` table includes explicit `report_month` and `report_year` columns.
+- **Filtering:** All dashboard and report queries filter by these columns, **not** the `entry_date`.
+- **The "December Rule":** This architecture allows expenses dated Dec 15–31 to be assigned to a **January** report month for annual processing.
+- **Persistence:** When an entry is edited, the system preserves the originally assigned `report_month` even if the user changes the `entry_date`.
+
+---
+
 ## 🛠️ Design Patterns Used
 
 - **Repository Pattern:** Decouples the database logic from the rest of the application. If we move from SQLite to another database in the future, we only need to change the Repository layer.

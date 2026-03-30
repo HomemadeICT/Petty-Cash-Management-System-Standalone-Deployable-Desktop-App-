@@ -1,4 +1,4 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class ReportViewerForm
     Inherits System.Windows.Forms.Form
 
@@ -75,8 +75,8 @@ Partial Class ReportViewerForm
         ' pnlNav (month navigation strip)
         ' 
         pnlNav.BackColor = Color.FromArgb(CByte(0), CByte(40), CByte(85))
-        pnlNav.Controls.Add(btnPrevReport)
         pnlNav.Controls.Add(lblReportMonthNav)
+        pnlNav.Controls.Add(btnPrevReport)
         pnlNav.Controls.Add(btnNextReport)
         pnlNav.Dock = DockStyle.Bottom
         pnlNav.Height = 38
@@ -92,9 +92,9 @@ Partial Class ReportViewerForm
         btnPrevReport.ForeColor = Color.White
         btnPrevReport.Location = New Point(8, 4)
         btnPrevReport.Name = "btnPrevReport"
-        btnPrevReport.Size = New Size(120, 30)
+        btnPrevReport.Size = New Size(100, 30)
         btnPrevReport.TabIndex = 0
-        btnPrevReport.Text = "◀ Prev Month"
+        btnPrevReport.Text = "◀ Prev"
         btnPrevReport.UseVisualStyleBackColor = False
         ' 
         ' btnNextReport
@@ -104,12 +104,11 @@ Partial Class ReportViewerForm
         btnNextReport.FlatStyle = FlatStyle.Flat
         btnNextReport.Font = New Font("Segoe UI", 10.0F, FontStyle.Bold)
         btnNextReport.ForeColor = Color.White
-        btnNextReport.Location = New Point(780, 4)
-        btnNextReport.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        btnNextReport.Location = New Point(114, 4)
         btnNextReport.Name = "btnNextReport"
-        btnNextReport.Size = New Size(120, 30)
+        btnNextReport.Size = New Size(100, 30)
         btnNextReport.TabIndex = 2
-        btnNextReport.Text = "Next Month ▶"
+        btnNextReport.Text = "Next ▶"
         btnNextReport.UseVisualStyleBackColor = False
         ' 
         ' lblReportMonthNav

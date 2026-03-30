@@ -1,4 +1,4 @@
-﻿' ============================================================================
+' ============================================================================
 ' ReportViewerForm.vb - Report Viewer Form Code-Behind
 ' Petty Cash Management System
 ' ============================================================================
@@ -50,11 +50,16 @@ Public Class ReportViewerForm
 #Region "Form Events"
 
     Private Sub ReportViewerForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        FormIconHelper.ApplyIcon(Me, FormIconHelper.FormType.Report)
         ' Initialize services
         Dim expenseRepo As New ExpenseRepository()
         Dim categoryRepo As New CategoryRepository()
         _reportService = New ReportService(expenseRepo, categoryRepo)
         _notificationService = New NotificationService()
+
+        ' Ensure navigation buttons are on top
+        btnPrevReport.BringToFront()
+        btnNextReport.BringToFront()
 
         ' If we were given a pre-built report use it; otherwise generate fresh
         If _report Is Nothing Then

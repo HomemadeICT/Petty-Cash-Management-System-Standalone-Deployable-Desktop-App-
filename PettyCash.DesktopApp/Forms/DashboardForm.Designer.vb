@@ -1,4 +1,4 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class DashboardForm
     Inherits System.Windows.Forms.Form
 
@@ -26,14 +26,12 @@ Partial Class DashboardForm
         Me.lblAppTitle = New System.Windows.Forms.Label()
         Me.pnlMonthNav = New System.Windows.Forms.Panel()
         Me.btnNextMonth = New System.Windows.Forms.Button()
+        Me.btnSort = New System.Windows.Forms.Button()
         Me.lblCurrentMonth = New System.Windows.Forms.Label()
         Me.btnPrevMonth = New System.Windows.Forms.Button()
         Me.pnlLeft = New System.Windows.Forms.Panel()
         Me.grpCategories = New System.Windows.Forms.GroupBox()
-        Me.lblCatE7510 = New System.Windows.Forms.Label()
-        Me.lblCatE7800 = New System.Windows.Forms.Label()
-        Me.lblCatE5300 = New System.Windows.Forms.Label()
-        Me.lblCatE5200 = New System.Windows.Forms.Label()
+        Me.pnlCategoryList = New System.Windows.Forms.FlowLayoutPanel()
         Me.grpSummary = New System.Windows.Forms.GroupBox()
         Me.prgMonthlyLimit = New System.Windows.Forms.ProgressBar()
         Me.lblRemainingValue = New System.Windows.Forms.Label()
@@ -54,7 +52,6 @@ Partial Class DashboardForm
         Me.pnlHeader.SuspendLayout()
         Me.pnlMonthNav.SuspendLayout()
         Me.pnlLeft.SuspendLayout()
-        Me.grpCategories.SuspendLayout()
         Me.grpSummary.SuspendLayout()
         Me.pnlActions.SuspendLayout()
         Me.pnlGrid.SuspendLayout()
@@ -68,7 +65,6 @@ Partial Class DashboardForm
         Me.pnlHeader.Controls.Add(Me.btnSettings)
         Me.pnlHeader.Controls.Add(Me.lblWelcome)
         Me.pnlHeader.Controls.Add(Me.lblAppTitle)
-        Me.pnlHeader.Controls.Add(Me.btnSettings)
         Me.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top
         Me.pnlHeader.Location = New System.Drawing.Point(0, 0)
         Me.pnlHeader.Name = "pnlHeader"
@@ -89,14 +85,13 @@ Partial Class DashboardForm
         'lblWelcome
         '
         Me.lblWelcome.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.lblWelcome.AutoSize = True
         Me.lblWelcome.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
         Me.lblWelcome.ForeColor = System.Drawing.Color.White
-        Me.lblWelcome.Location = New System.Drawing.Point(900, 20)
+        Me.lblWelcome.Location = New System.Drawing.Point(700, 20)
         Me.lblWelcome.Name = "lblWelcome"
-        Me.lblWelcome.Size = New System.Drawing.Size(180, 20)
         Me.lblWelcome.TabIndex = 1
         Me.lblWelcome.Text = "Welcome, User"
-        Me.lblWelcome.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
         'btnSettings
         '
@@ -131,6 +126,7 @@ Partial Class DashboardForm
         'pnlMonthNav
         '
         Me.pnlMonthNav.BackColor = System.Drawing.Color.FromArgb(240, 240, 245)
+        Me.pnlMonthNav.Controls.Add(Me.btnSort)
         Me.pnlMonthNav.Controls.Add(Me.btnNextMonth)
         Me.pnlMonthNav.Controls.Add(Me.lblCurrentMonth)
         Me.pnlMonthNav.Controls.Add(Me.btnPrevMonth)
@@ -160,6 +156,7 @@ Partial Class DashboardForm
         Me.lblCurrentMonth.TabIndex = 1
         Me.lblCurrentMonth.Text = "February 2026"
         Me.lblCurrentMonth.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.lblCurrentMonth.Cursor = System.Windows.Forms.Cursors.Hand
         '
         'btnNextMonth
         '
@@ -170,6 +167,20 @@ Partial Class DashboardForm
         Me.btnNextMonth.Size = New System.Drawing.Size(40, 30)
         Me.btnNextMonth.TabIndex = 2
         Me.btnNextMonth.Text = ">"
+        '
+        'btnSort
+        '
+        Me.btnSort.BackColor = System.Drawing.Color.FromArgb(70, 130, 180)
+        Me.btnSort.FlatAppearance.BorderSize = 0
+        Me.btnSort.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnSort.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
+        Me.btnSort.ForeColor = System.Drawing.Color.White
+        Me.btnSort.Location = New System.Drawing.Point(770, 10)
+        Me.btnSort.Name = "btnSort"
+        Me.btnSort.Size = New System.Drawing.Size(110, 30)
+        Me.btnSort.TabIndex = 3
+        Me.btnSort.Text = "↑ Date ASC"
+        Me.btnSort.UseVisualStyleBackColor = False
         '
         'pnlLeft
         '
@@ -252,59 +263,28 @@ Partial Class DashboardForm
         '
         'grpCategories
         '
-        Me.grpCategories.Controls.Add(Me.lblCatE7510)
-        Me.grpCategories.Controls.Add(Me.lblCatE7800)
-        Me.grpCategories.Controls.Add(Me.lblCatE5300)
-        Me.grpCategories.Controls.Add(Me.lblCatE5200)
+        Me.grpCategories.Controls.Add(Me.pnlCategoryList)
         Me.grpCategories.Dock = System.Windows.Forms.DockStyle.Top
         Me.grpCategories.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
         Me.grpCategories.ForeColor = System.Drawing.Color.FromArgb(0, 51, 102)
         Me.grpCategories.Location = New System.Drawing.Point(10, 170)
         Me.grpCategories.Name = "grpCategories"
-        Me.grpCategories.Size = New System.Drawing.Size(260, 150)
+        Me.grpCategories.Size = New System.Drawing.Size(260, 200)
         Me.grpCategories.TabIndex = 1
         Me.grpCategories.TabStop = False
         Me.grpCategories.Text = "By Category"
         '
-        'lblCatE5200
+        'pnlCategoryList
         '
-        Me.lblCatE5200.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblCatE5200.ForeColor = System.Drawing.Color.Black
-        Me.lblCatE5200.Location = New System.Drawing.Point(15, 30)
-        Me.lblCatE5200.Name = "lblCatE5200"
-        Me.lblCatE5200.Size = New System.Drawing.Size(230, 20)
-        Me.lblCatE5200.TabIndex = 0
-        Me.lblCatE5200.Text = "E5200 Vehicle Parts: LKR 0.00"
-        '
-        'lblCatE5300
-        '
-        Me.lblCatE5300.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblCatE5300.ForeColor = System.Drawing.Color.Black
-        Me.lblCatE5300.Location = New System.Drawing.Point(15, 55)
-        Me.lblCatE5300.Name = "lblCatE5300"
-        Me.lblCatE5300.Size = New System.Drawing.Size(230, 20)
-        Me.lblCatE5300.TabIndex = 1
-        Me.lblCatE5300.Text = "E5300 Office Items: LKR 0.00"
-        '
-        'lblCatE7800
-        '
-        Me.lblCatE7800.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblCatE7800.ForeColor = System.Drawing.Color.Black
-        Me.lblCatE7800.Location = New System.Drawing.Point(15, 80)
-        Me.lblCatE7800.Name = "lblCatE7800"
-        Me.lblCatE7800.Size = New System.Drawing.Size(230, 20)
-        Me.lblCatE7800.TabIndex = 2
-        Me.lblCatE7800.Text = "E7800 Physical Hardware: LKR 0.00"
-        '
-        'lblCatE7510
-        '
-        Me.lblCatE7510.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.lblCatE7510.ForeColor = System.Drawing.Color.Black
-        Me.lblCatE7510.Location = New System.Drawing.Point(15, 105)
-        Me.lblCatE7510.Name = "lblCatE7510"
-        Me.lblCatE7510.Size = New System.Drawing.Size(230, 20)
-        Me.lblCatE7510.TabIndex = 3
-        Me.lblCatE7510.Text = "E7510 Treatments: LKR 0.00"
+        Me.pnlCategoryList.AutoScroll = True
+        Me.pnlCategoryList.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.pnlCategoryList.FlowDirection = System.Windows.Forms.FlowDirection.TopDown
+        Me.pnlCategoryList.WrapContents = False
+        Me.pnlCategoryList.Location = New System.Drawing.Point(3, 22)
+        Me.pnlCategoryList.Name = "pnlCategoryList"
+        Me.pnlCategoryList.Padding = New System.Windows.Forms.Padding(10, 5, 5, 5)
+        Me.pnlCategoryList.Size = New System.Drawing.Size(254, 175)
+        Me.pnlCategoryList.TabIndex = 0
         '
         'pnlActions
         '
@@ -491,7 +471,6 @@ Partial Class DashboardForm
         Me.pnlHeader.PerformLayout()
         Me.pnlMonthNav.ResumeLayout(False)
         Me.pnlLeft.ResumeLayout(False)
-        Me.grpCategories.ResumeLayout(False)
         Me.grpSummary.ResumeLayout(False)
         Me.grpSummary.PerformLayout()
         Me.pnlActions.ResumeLayout(False)
@@ -509,6 +488,7 @@ Partial Class DashboardForm
     Friend WithEvents btnPrevMonth As Button
     Friend WithEvents lblCurrentMonth As Label
     Friend WithEvents btnNextMonth As Button
+    Friend WithEvents btnSort As Button
     Friend WithEvents pnlLeft As Panel
     Friend WithEvents grpSummary As GroupBox
     Friend WithEvents lblTotalLabel As Label
@@ -517,10 +497,7 @@ Partial Class DashboardForm
     Friend WithEvents lblRemainingValue As Label
     Friend WithEvents prgMonthlyLimit As ProgressBar
     Friend WithEvents grpCategories As GroupBox
-    Friend WithEvents lblCatE5200 As Label
-    Friend WithEvents lblCatE5300 As Label
-    Friend WithEvents lblCatE7800 As Label
-    Friend WithEvents lblCatE7510 As Label
+    Friend WithEvents pnlCategoryList As FlowLayoutPanel
     Friend WithEvents pnlActions As Panel
     Friend WithEvents btnAddEntry As Button
     Friend WithEvents btnEditEntry As Button

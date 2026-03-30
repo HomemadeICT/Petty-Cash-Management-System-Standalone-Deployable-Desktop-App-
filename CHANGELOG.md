@@ -2,7 +2,29 @@
 
 All notable changes to the Petty Cash Management System will be documented in this file.
 
-## [1.2.1] - 2026-03-23 (Current)
+## [1.3.0] - 2026-03-28 (Current)
+### ✨ Added
+- **Dynamic Category Management:** Admins can now Add, Edit, and Delete expense categories directly from the UI.
+- **Database Restore:** Full disaster recovery capability allowing admins to restore the database from any `.sqlite_bak` file.
+- **Universal Reporting:** Both HTML and Excel reports now automatically adjust to any number of used categories (no more hardcoding).
+
+### 🚀 Improved
+- **Professional Excel Exports:**
+  - Implemented real-time `SUM()` formulas and dynamic summary sentences.
+  - Enforced strict `Decimal` numeric types for all amounts (eliminated "green corner" text warnings).
+  - Added **Adaptive Layout**: Automatically switches to Landscape mode if the report contains many categories.
+- **Data Integrity:**
+  - Fixed "Missing Record" bug by decoupling reports from specific category IDs.
+  - Implemented **BR11 (December Cross-Month Rule)**: Expenses from Dec 15–31 can now be reported in January.
+  - Relaxed validation to allow "User Freedom" when editing past months.
+
+### 📝 Documentation
+- Created `docs/bug-reporting-guide.md`.
+- Consolidated all "After Deployed" notes into official documentation set.
+- Reorganized `docs/` for GitHub portfolio presentation.
+- Updated **Inno Setup Script (Setup.iss)** to v1.3.0 with modern feature highlights.
+
+## [1.2.1] - 2026-03-23
 ### 🐛 Fixed
 - **Deployment bug:** CRUD operations failed on target PCs after a clean install.
   - Added MSBuild post-publish target to copy `{AssemblyName}.dll.config → {AssemblyName}.exe.config` so .NET 8 self-contained apps can read their config file.

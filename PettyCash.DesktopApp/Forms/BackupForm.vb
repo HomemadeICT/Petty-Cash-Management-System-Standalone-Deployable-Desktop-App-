@@ -17,6 +17,7 @@ Public Class BackupForm
 #Region "Form Events"
 
     Private Sub BackupForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        FormIconHelper.ApplyIcon(Me, FormIconHelper.FormType.Backup)
         _backupService = New BackupService()
 
         ' Set default backup folder
@@ -127,6 +128,99 @@ Public Class BackupForm
         If bytes < 1048576 Then Return $"{bytes \ 1024} KB"
         Return $"{bytes \ 1048576} MB"
     End Function
+
+#End Region
+
+#Region "Restore"
+
+    Private Sub btnRestore_Click(sender As Object, e As EventArgs) Handles btnRestore.Click
+        ' Determine backup file to restore
+        Dim backupPath As String = Nothing
+
+        If lstBackups.SelectedIndex >= 0 Then
+            ' Try to resolve from selected list item
+            Dim selectedText = lstBackups.SelectedItem.ToString()
+            If selectedText.StartsWith("(") Then
+                MessageBox.Show("Please select a valid backup file from the list.", "No Selection",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Return
+            End If
+
+            ' Extract filename from list format: [dd/MM/yyyy HH:mm]  filename  (size)
+            Dim parts = selectedText.Split({"  "}, StringSplitOptions.RemoveEmptyEntries)
+            If parts.Length >= 2 Then
+                Dim fileName = parts(1).Trim()
+                ' Remove size suffix if present
+                If fileName.Contains("(") Then
+                    fileName = fileName.Substring(0, fileName.IndexOf("(")).Trim()
+                End If
+                backupPath = Path.Combine(txtBackupFolder.Text, fileName)
+            End If
+        End If
+
+        ' If no valid selection, let user browse for a file
+        If String.IsNullOrEmpty(backupPath) OrElse Not File.Exists(backupPath) Then
+            Using ofd As New OpenFileDialog()
+                ofd.Title = "Select a backup file to restore"
+                ofd.Filter = "SQLite Backup Files (*.sqlite_bak)|*.sqlite_bak|All Files (*.*)|*.*"
+                ofd.InitialDirectory = txtBackupFolder.Text
+                If ofd.ShowDialog() = DialogResult.OK Then
+                    backupPath = ofd.FileName
+                Else
+                    Return
+                End If
+            End Using
+        End If
+
+        ' First confirmation
+        If MessageBox.Show("⚠ WARNING: Restoring a backup will REPLACE all current data with the backup data." & Environment.NewLine & Environment.NewLine &
+                           $"Backup file: {Path.GetFileName(backupPath)}" & Environment.NewLine & Environment.NewLine &
+                           "Are you sure you want to continue?",
+                           "Confirm Restore", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) <> DialogResult.Yes Then
+            Return
+        End If
+
+        ' Second confirmation
+        If MessageBox.Show("⚠ FINAL WARNING: This action CANNOT be undone!" & Environment.NewLine & Environment.NewLine &
+                           "It is strongly recommended to create a backup of the current database before restoring." & Environment.NewLine & Environment.NewLine &
+                           "Do you want to proceed with the restore?",
+                           "Final Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Stop) <> DialogResult.Yes Then
+            Return
+        End If
+
+        ' Perform restore
+        Try
+            lblStatus.Text = "⏳ Restoring database, please wait..."
+            lblStatus.ForeColor = Color.DarkOrange
+            btnRestore.Enabled = False
+            Application.DoEvents()
+
+            Dim result = _backupService.RestoreBackup(backupPath)
+
+            If result.IsSuccess Then
+                lblStatus.Text = "✅ Database restored successfully!"
+                lblStatus.ForeColor = Color.DarkGreen
+
+                MessageBox.Show("Database restored successfully!" & Environment.NewLine & Environment.NewLine &
+                               "The application needs to restart for changes to take effect.",
+                               "Restore Complete", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+                ' Restart the application
+                Application.Restart()
+            Else
+                lblStatus.Text = "❌ Restore failed."
+                lblStatus.ForeColor = Color.Red
+                MessageBox.Show(result.ErrorMessage, "Restore Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End If
+
+        Catch ex As Exception
+            lblStatus.Text = "❌ Unexpected error."
+            lblStatus.ForeColor = Color.Red
+            MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Finally
+            btnRestore.Enabled = True
+        End Try
+    End Sub
 
 #End Region
 

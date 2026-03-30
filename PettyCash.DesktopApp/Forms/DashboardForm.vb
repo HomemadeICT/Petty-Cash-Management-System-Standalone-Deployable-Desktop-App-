@@ -1,4 +1,4 @@
-﻿' ============================================================================
+' ============================================================================
 ' DashboardForm.vb - Dashboard Form Code-Behind
 ' Petty Cash Management System
 ' ============================================================================
@@ -15,13 +15,16 @@ Public Class DashboardForm
     Private _reportService As ReportService
     Private _auditService As AuditService
     Private _notificationService As NotificationService
+    Private _categoryRepo As CategoryRepository
     Private _currentYear As Integer
     Private _currentMonth As Integer
+    Private _sortAscending As Boolean = True  ' Default sort: date ascending (Low to High)
 #End Region
 
 #Region "Form Events"
 
     Private Sub DashboardForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        FormIconHelper.ApplyIcon(Me, FormIconHelper.FormType.Dashboard)
         ' Initialize services
         InitializeServices()
 
@@ -32,7 +35,7 @@ Public Class DashboardForm
         ' Set welcome message
         If SessionManager.CurrentUser IsNot Nothing Then
             lblWelcome.Text = $"Welcome, {SessionManager.CurrentUser.FullName} ({SessionManager.CurrentUser.Role})"
-            
+
             ' Apply permission-based UI controls
             ApplyPermissions()
         End If
@@ -64,6 +67,7 @@ Public Class DashboardForm
 
         _auditService = New AuditService(auditRepo)
         _expenseService = New ExpenseService(expenseRepo, validationService, _auditService)
+        _categoryRepo = categoryRepo
         _reportService = New ReportService(expenseRepo, categoryRepo)
         _notificationService = New NotificationService()
     End Sub
@@ -114,34 +118,88 @@ Public Class DashboardForm
 
     Private Sub LoadCategoryTotals()
         Dim totals = _expenseService.GetCategoryTotals(_currentYear, _currentMonth)
+        Dim categories = _categoryRepo.GetAll()
 
-        lblCatE5200.Text = $"E5200 Vehicle Parts: LKR {totals.GetValueOrDefault("E5200", 0):N2}"
-        lblCatE5300.Text = $"E5300 Office Items: LKR {totals.GetValueOrDefault("E5300", 0):N2}"
-        lblCatE7800.Text = $"E7800 Physical Hardware: LKR {totals.GetValueOrDefault("E7800", 0):N2}"
-        lblCatE7510.Text = $"E7510 Treatments: LKR {totals.GetValueOrDefault("E7510", 0):N2}"
+        ' Clear existing labels
+        pnlCategoryList.Controls.Clear()
+
+        ' Create a label for each category dynamically
+        For Each cat In categories
+            Dim amount = totals.GetValueOrDefault(cat.CategoryCode, 0D)
+            Dim lbl As New Label() With {
+                .Text = $"{cat.CategoryCode} {cat.CategoryName}: LKR {amount:N2}",
+                .Font = New Drawing.Font("Segoe UI", 9, Drawing.FontStyle.Regular, Drawing.GraphicsUnit.Point),
+                .ForeColor = Drawing.Color.Black,
+                .Size = New Drawing.Size(230, 22),
+                .AutoSize = False,
+                .Margin = New Padding(0, 2, 0, 2)
+            }
+            pnlCategoryList.Controls.Add(lbl)
+        Next
+
+        ' If no categories exist, show a placeholder
+        If categories.Count = 0 Then
+            Dim lbl As New Label() With {
+                .Text = "(No categories defined)",
+                .Font = New Drawing.Font("Segoe UI", 9, Drawing.FontStyle.Italic, Drawing.GraphicsUnit.Point),
+                .ForeColor = Drawing.Color.Gray,
+                .AutoSize = True
+            }
+            pnlCategoryList.Controls.Add(lbl)
+        End If
     End Sub
 
     Private Sub LoadEntries()
         Dim entries = _expenseService.GetByMonth(_currentYear, _currentMonth)
 
+        ' Apply sort direction
+        If _sortAscending Then
+            entries = entries.OrderBy(Function(e) e.EntryDate).ThenBy(Function(e) e.EntryId).ToList()
+        Else
+            entries = entries.OrderByDescending(Function(e) e.EntryDate).ThenByDescending(Function(e) e.EntryId).ToList()
+        End If
+
+        ' Build data source with index column
+        Dim index As Integer = 0
         dgvEntries.DataSource = Nothing
-        dgvEntries.DataSource = entries.Select(Function(exp) New With {
-            exp.EntryId,
-            .Date = exp.EntryDate.ToString("dd/MM/yyyy"),
-            .BillNo = exp.BillNo,
-            .Category = exp.CategoryCode,
-            .Description = If(exp.Description.Length > 50, exp.Description.Substring(0, 47) & "...", exp.Description),
-            .Amount = exp.Amount.ToString("N2")
-        }).ToList()
+        dgvEntries.DataSource = entries.Select(Function(exp)
+                                                   index += 1
+                                                   Return New With {
+                                                       Key .Index = index,
+                                                       exp.EntryId,
+                                                       .Date = exp.EntryDate.ToString("dd/MM/yyyy"),
+                                                       .BillNo = exp.BillNo,
+                                                       .Category = exp.CategoryCode,
+                                                       .Description = If(exp.Description.Length > 50, exp.Description.Substring(0, 47) & "...", exp.Description),
+                                                       .Amount = exp.Amount.ToString("N2")
+                                                   }
+                                               End Function).ToList()
 
         ' Hide ID column
         If dgvEntries.Columns.Contains("EntryId") Then
             dgvEntries.Columns("EntryId").Visible = False
         End If
 
-        ' Format columns
+        ' Style index column (grayed out, non-printing appearance)
+        If dgvEntries.Columns.Contains("Index") Then
+            dgvEntries.Columns("Index").HeaderText = "#"
+            dgvEntries.Columns("Index").Width = 40
+            dgvEntries.Columns("Index").MinimumWidth = 40
+            dgvEntries.Columns("Index").AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+            dgvEntries.Columns("Index").DefaultCellStyle.ForeColor = Color.FromArgb(180, 180, 180)
+            dgvEntries.Columns("Index").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+            dgvEntries.Columns("Index").DefaultCellStyle.Font = New Font("Segoe UI", 9, FontStyle.Italic)
+            dgvEntries.Columns("Index").SortMode = DataGridViewColumnSortMode.NotSortable
+        End If
+
+        ' Format amount column
         If dgvEntries.Columns.Contains("Amount") Then
             dgvEntries.Columns("Amount").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+        End If
+
+        ' Update sort button text
+        If btnSort IsNot Nothing Then
+            btnSort.Text = If(_sortAscending, "↑ Date ASC", "↓ Date DESC")
         End If
     End Sub
 
@@ -175,6 +233,23 @@ Public Class DashboardForm
             _currentYear = nextMonth.Year
             RefreshData()
         End If
+    End Sub
+
+    Private Sub btnSort_Click(sender As Object, e As EventArgs) Handles btnSort.Click
+        ' Toggle sort direction
+        _sortAscending = Not _sortAscending
+        LoadEntries()
+    End Sub
+
+    Private Sub lblCurrentMonth_Click(sender As Object, e As EventArgs) Handles lblCurrentMonth.Click
+        ' Allow user to jump to any month/year for editing past records
+        Using picker As New MonthYearPickerForm(_currentYear, _currentMonth)
+            If picker.ShowDialog() = DialogResult.OK Then
+                _currentYear = picker.SelectedYear
+                _currentMonth = picker.SelectedMonth
+                RefreshData()
+            End If
+        End Using
     End Sub
 
 #End Region
@@ -276,11 +351,11 @@ Public Class DashboardForm
                         Dim result = bulkExportService.ExportMultipleMonthsToExcel(_currentYear, dlg.SelectedMonths, saveDialog.FileName)
 
                         If result.IsSuccess Then
-                            _auditService.LogAction(AuditActionTypes.BULK_EXPORT, SessionManager.CurrentUserId, 
+                            _auditService.LogAction(AuditActionTypes.BULK_EXPORT, SessionManager.CurrentUserId,
                                                     $"Exported {dlg.SelectedMonths.Count} months to {Path.GetFileName(saveDialog.FileName)}")
-                            
+
                             MessageBox.Show(result.Message, "Export Successful", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                            
+
                             ' Ask user if they want to open the file
                             If MessageBox.Show("Do you want to open the exported file?", "Open File",
                                               MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
@@ -370,6 +445,10 @@ Public Class DashboardForm
         Using frm As New BackupForm()
             frm.ShowDialog()
         End Using
+    End Sub
+
+    Private Sub lblWelcome_Click(sender As Object, e As EventArgs) Handles lblWelcome.Click
+
     End Sub
 
 #End Region

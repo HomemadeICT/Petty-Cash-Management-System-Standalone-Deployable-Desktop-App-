@@ -60,7 +60,7 @@ Public Class ReportHtmlGenerator
         sb.AppendLine("        <div class=""report-header"" style=""text-align: center; margin-bottom: 10px;"">")
         sb.AppendLine($"            <div style=""font-size: 14px; font-weight: bold;"">{report.Year} {sinhalaMonth}</div>")
         sb.AppendLine($"            <div style=""font-size: 16px; font-weight: bold;"">{CHIEF_ENGINEER_TITLE}</div>")
-        sb.AppendLine($"            <div style=""font-size: 16px; font-weight: bold;"">{REPORT_TITLE}</div>")
+        sb.AppendLine($"            <div style=""font-size: 16px; font-weight: bold; text-decoration: underline;"">{REPORT_TITLE}</div>")
         sb.AppendLine("        </div>")
         sb.AppendLine()
         sb.AppendLine($"        <div style=""margin-bottom: 5px;""><strong>{OFFICE_LOCATION}</strong></div>")
@@ -74,11 +74,6 @@ Public Class ReportHtmlGenerator
         sb.AppendLine("        </div>")
         sb.AppendLine()
 
-        ' Calculate totals
-        Dim totalE5200 As Decimal = 0
-        Dim totalE5300 As Decimal = 0
-        Dim totalE7800 As Decimal = 0
-
         ' Entries Table
         sb.AppendLine("        <!-- Entries Table -->")
         sb.AppendLine("        <table class=""report-table"" style=""width: 100%; border-collapse: collapse;"">")
@@ -87,9 +82,10 @@ Public Class ReportHtmlGenerator
         sb.AppendLine("                    <th style=""width: 40px;"">අනු අංකය</th>")
         sb.AppendLine("                    <th style=""width: 80px;"">දිනය</th>")
         sb.AppendLine("                    <th>විස්තරය</th>")
-        sb.AppendLine("                    <th style=""width: 70px;"">E 5200</th>")
-        sb.AppendLine("                    <th style=""width: 70px;"">E 5300</th>")
-        sb.AppendLine("                    <th style=""width: 70px;"">E 7800</th>")
+        ' Dynamic category headers
+        For Each cat In report.Categories
+            sb.AppendLine($"                    <th style=""width: 70px;"">{cat.CategoryCode}</th>")
+        Next
         sb.AppendLine("                </tr>")
         sb.AppendLine("            </thead>")
         sb.AppendLine("            <tbody>")
@@ -98,28 +94,16 @@ Public Class ReportHtmlGenerator
         If report.Entries IsNot Nothing Then
             Dim serialNo = 1
             For Each entry In report.Entries
-                ' Skip E7510 category
-                If entry.CategoryCode = "E7510" Then Continue For
-
-                Dim dateStr = entry.EntryDate.ToString("yy.MM.dd")
-                Dim e5200Val = If(entry.CategoryCode = "E5200", entry.Amount.ToString("N2"), "-")
-                Dim e5300Val = If(entry.CategoryCode = "E5300", entry.Amount.ToString("N2"), "-")
-                Dim e7800Val = If(entry.CategoryCode = "E7800", entry.Amount.ToString("N2"), "-")
-
-                ' Update totals
-                Select Case entry.CategoryCode
-                    Case "E5200" : totalE5200 += entry.Amount
-                    Case "E5300" : totalE5300 += entry.Amount
-                    Case "E7800" : totalE7800 += entry.Amount
-                End Select
-
                 sb.AppendLine("                <tr>")
                 sb.AppendLine($"                    <td style=""text-align: center;"">{serialNo}</td>")
-                sb.AppendLine($"                    <td style=""text-align: center;"">{dateStr}</td>")
+                sb.AppendLine($"                    <td style=""text-align: center;"">{entry.EntryDate:dd.MM.yy}</td>")
                 sb.AppendLine($"                    <td class=""description-cell"">{HtmlEncode(entry.Description)}</td>")
-                sb.AppendLine($"                    <td class=""amount-cell"">{e5200Val}</td>")
-                sb.AppendLine($"                    <td class=""amount-cell"">{e5300Val}</td>")
-                sb.AppendLine($"                    <td class=""amount-cell"">{e7800Val}</td>")
+
+                ' Dynamic category amount cells
+                For Each cat In report.Categories
+                    Dim amountText = If(entry.CategoryCode = cat.CategoryCode, entry.Amount.ToString("N2"), "-")
+                    sb.AppendLine($"                    <td style=""text-align: right; padding-right: 5px;"">{amountText}</td>")
+                Next
                 sb.AppendLine("                </tr>")
                 serialNo += 1
             Next
@@ -128,33 +112,34 @@ Public Class ReportHtmlGenerator
         sb.AppendLine("            </tbody>")
         sb.AppendLine("            <tfoot>")
         sb.AppendLine("                <tr style=""font-weight: bold;"">")
-        sb.AppendLine("                    <td colspan=""3"" style=""text-align: right; border: none;"">&nbsp;</td>")
-        sb.AppendLine($"                    <td class=""amount-cell"">{totalE5200:N2}</td>")
-        sb.AppendLine($"                    <td class=""amount-cell"">{totalE5300:N2}</td>")
-        sb.AppendLine($"                    <td class=""amount-cell"">{totalE7800:N2}</td>")
+        sb.AppendLine($"                    <td colspan=""3"" style=""text-align: right;"">එකතුව</td>")
+
+        ' Dynamic category totals in footer
+        For Each cat In report.Categories
+            Dim catTotal = report.CategorySummaries.FirstOrDefault(Function(c) c.CategoryCode = cat.CategoryCode)?.Total
+            Dim totalText = If(catTotal.HasValue, catTotal.Value.ToString("N2"), "-")
+            sb.AppendLine($"                    <th style=""text-align: right; padding-right: 5px;"">{totalText}</th>")
+        Next
         sb.AppendLine("                </tr>")
         sb.AppendLine("            </tfoot>")
         sb.AppendLine("        </table>")
         sb.AppendLine()
 
         ' Summary Section
-        Dim totalExpenses = totalE5200 + totalE5300 + totalE7800
-        Dim remainingBalance = MONTHLY_LIMIT - totalExpenses
-
         sb.AppendLine("        <!-- Summary Section -->")
         sb.AppendLine("        <div style=""margin-top: 10px; width: 100%;"">")
         sb.AppendLine("            <table style=""width: 100%; border: none;"">")
         sb.AppendLine("                <tr>")
         sb.AppendLine("                    <td style=""border: none; width: 70%;""><strong>වියදම් වූ මුළු මුදල රු.</strong></td>")
-        sb.AppendLine($"                    <td style=""border: none; text-align: right;""><strong>{totalExpenses:N2}</strong></td>")
+        sb.AppendLine($"                    <td style=""border: none; text-align: right;""><strong>{report.GrandTotal:N2}</strong></td>")
         sb.AppendLine("                </tr>")
         sb.AppendLine("                <tr>")
         sb.AppendLine("                    <td style=""border: none;""><strong>සුළු අක් මුදල් සඳහා ලැබීම් රු.</strong></td>")
-        sb.AppendLine($"                    <td style=""border: none; text-align: right;""><strong>{MONTHLY_LIMIT:N2}</strong></td>")
+        sb.AppendLine($"                    <td style=""border: none; text-align: right;""><strong>{report.MonthlyLimit:N2}</strong></td>")
         sb.AppendLine("                </tr>")
         sb.AppendLine("                <tr>")
         sb.AppendLine("                    <td style=""border: none;""><strong>ඉතිරි මුදල රු.</strong></td>")
-        sb.AppendLine($"                    <td style=""border: none; text-align: right;""><strong>{remainingBalance:N2}</strong></td>")
+        sb.AppendLine($"                    <td style=""border: none; text-align: right;""><strong>{report.RemainingBalance:N2}</strong></td>")
         sb.AppendLine("                </tr>")
         sb.AppendLine("            </table>")
         sb.AppendLine("        </div>")
@@ -164,7 +149,7 @@ Public Class ReportHtmlGenerator
         sb.AppendLine("        <!-- Request Text -->")
         sb.AppendLine("        <div style=""margin-top: 20px;"">")
         sb.AppendLine("            <p>")
-        sb.AppendLine($"                ඉහත දක්වා ඇත්තේ පා.සේ.ම. සුළු අක් මුදල් වල ගෙවීම සාරාංශයයි. රු <strong>{totalExpenses:N2}</strong> ක මුදල ප්‍රතිපූර්ණයට අවශ්‍ය කටයුතු")
+        sb.AppendLine($"                ඉහත දක්වා ඇත්තේ පා.සේ.ම. සුළු අක් මුදල් වල ගෙවීම සාරාංශයයි. රු <strong>{report.GrandTotal:N2}</strong> ක මුදල ප්‍රතිපූර්ණයට අවශ්‍ය කටයුතු")
         sb.AppendLine("                සලසා දෙන මෙන් කාරුණිකව ඉල්ලමි.")
         sb.AppendLine("            </p>")
         sb.AppendLine("        </div>")

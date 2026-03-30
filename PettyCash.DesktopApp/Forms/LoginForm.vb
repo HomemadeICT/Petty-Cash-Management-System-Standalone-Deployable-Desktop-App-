@@ -1,4 +1,4 @@
-﻿' ============================================================================
+' ============================================================================
 ' LoginForm.vb - Login Form Code-Behind
 ' Petty Cash Management System
 ' ============================================================================
@@ -26,6 +26,7 @@ Public Class LoginForm
 #Region "Form Events"
 
     Private Sub LoginForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        FormIconHelper.ApplyIcon(Me, FormIconHelper.FormType.Login)
         Try
             ' Initialize repositories
             _userRepository = New UserRepository()

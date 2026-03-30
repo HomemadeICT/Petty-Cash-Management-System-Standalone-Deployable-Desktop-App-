@@ -104,6 +104,20 @@ Public Class CategoryRepository
         Return Nothing
     End Function
 
+    ''' <summary>
+    ''' Returns True if any non-deleted expense entry references this category code.
+    ''' Used to prevent deletion of in-use categories.
+    ''' </summary>
+    Public Function IsCategoryInUse(categoryCode As String) As Boolean
+        Dim sql = "SELECT COUNT(*) FROM petty_cash_entries WHERE category_code = @Code AND is_deleted = 0"
+        Using connection = DbContext.GetConnection()
+            Using command As New SQLiteCommand(sql, connection)
+                command.Parameters.AddWithValue("@Code", categoryCode)
+                Return Convert.ToInt32(command.ExecuteScalar()) > 0
+            End Using
+        End Using
+    End Function
+
 #End Region
 
 #Region "Private Methods"

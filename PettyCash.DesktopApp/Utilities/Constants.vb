@@ -18,9 +18,16 @@ Public Class Constants
 #End Region
 
 #Region "Business Rules"
+    ''' <summary>BR1: Total petty cash allowable per month for the location.</summary>
     Public Const MONTHLY_LIMIT As Decimal = 25000D
+
+    ''' <summary>BR2: Maximum amount allowed for a single bill receipt.</summary>
     Public Const SINGLE_BILL_LIMIT As Decimal = 5000D
+
+    ''' <summary>BR4: Threshold at which a bill is considered high-value (warning only).</summary>
     Public Const HIGH_VALUE_THRESHOLD As Decimal = 3000D
+
+    ''' <summary>BR8: Minimum characters required for the expense description.</summary>
     Public Const MIN_DESCRIPTION_LENGTH As Integer = 10
 #End Region
 

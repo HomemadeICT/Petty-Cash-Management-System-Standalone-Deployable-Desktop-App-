@@ -37,6 +37,7 @@ Public Class UserEditForm
 #Region "Form Events"
 
     Private Sub UserEditForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        FormIconHelper.ApplyIcon(Me, FormIconHelper.FormType.UserEdit)
         ' Setup role combobox
         cmbRole.Items.Clear()
         cmbRole.Items.Add("Admin")

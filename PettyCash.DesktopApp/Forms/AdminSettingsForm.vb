@@ -1,157 +1,246 @@
-﻿' ============================================================================
-' AdminSettingsForm.vb - Admin Settings Form Code-Behind
+' ============================================================================
+' AdminSettingsForm.vb - Settings Hub
 ' Petty Cash Management System
 ' ============================================================================
-' Purpose: View notification settings and test notifications
+' Purpose: Central settings hub showing permission-filtered shortcut tiles
+'          for every setting the logged-in user is allowed to access.
 ' ============================================================================
 
+Imports System.Drawing
+Imports System.Drawing.Drawing2D
 Imports System.Windows.Forms
 
 Public Class AdminSettingsForm
 
-#Region "Private Fields"
-    Private _notificationService As NotificationService
-#End Region
-
 #Region "Form Events"
 
     Private Sub AdminSettingsForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' Initialize notification service
-        _notificationService = New NotificationService()
+        FormIconHelper.ApplyIcon(Me, FormIconHelper.FormType.Settings)
 
-        ' Load settings from config
-        LoadSettings()
+        ' Show who is logged in
+        If SessionManager.CurrentUser IsNot Nothing Then
+            lblUserInfo.Text = $"Logged in as: {SessionManager.CurrentUser.FullName}  ({SessionManager.CurrentUser.Role})"
+        Else
+            lblUserInfo.Text = "Logged in as: Guest"
+        End If
 
-        ' Update status labels
-        UpdateStatus()
+        ' Build tile grid based on permissions
+        BuildSettingsTiles()
     End Sub
 
 #End Region
 
-#Region "Load Settings"
+#Region "Tile Builder"
 
-    Private Sub LoadSettings()
-        ' Email settings
-        Dim emailEnabled = Boolean.Parse(ConfigManager.GetSetting("EmailNotificationsEnabled", "False"))
-        chkEmailEnabled.Checked = emailEnabled
-        txtSmtpHost.Text = ConfigManager.GetSetting("SmtpHost", "")
-        txtSmtpPort.Text = ConfigManager.GetSetting("SmtpPort", "")
-        txtAdminEmail.Text = ConfigManager.GetSetting("AdminEmail", "")
+    ''' <summary>
+    ''' Creates a list of every possible setting tile, then adds only
+    ''' those the current user has permission for.
+    ''' </summary>
+    Private Sub BuildSettingsTiles()
+        pnlContent.Controls.Clear()
 
-        ' WhatsApp settings
-        Dim whatsAppEnabled = Boolean.Parse(ConfigManager.GetSetting("WhatsAppNotificationsEnabled", "False"))
-        chkWhatsAppEnabled.Checked = whatsAppEnabled
-        
-        Dim twilioSid = ConfigManager.GetSetting("TwilioAccountSid", "")
-        Dim twilioToken = ConfigManager.GetSetting("TwilioAuthToken", "")
-        
-        ' Show masked values for security
-        If Not String.IsNullOrEmpty(twilioSid) Then
-            txtTwilioSid.Text = "AC" & New String("*"c, twilioSid.Length - 6) & twilioSid.Substring(Math.Max(0, twilioSid.Length - 4))
-        End If
-        
-        If Not String.IsNullOrEmpty(twilioToken) Then
-            txtTwilioToken.Text = New String("*"c, 32)
-        End If
-        
-        txtTwilioNumber.Text = ConfigManager.GetSetting("TwilioWhatsAppNumber", "")
-        txtAdminWhatsApp.Text = ConfigManager.GetSetting("AdminWhatsAppNumber", "")
-    End Sub
+        ' ----- Define all tiles -----
+        Dim allTiles As New List(Of TileInfo) From {
+            New TileInfo With {
+                .Title = "Manage Categories",
+                .Subtitle = "Add, edit or remove expense categories",
+                .Emoji = "📂",
+                .BackColor = Color.FromArgb(70, 130, 180),
+                .PermissionKey = PermissionKeys.SETTINGS_VIEW,
+                .ClickAction = Sub() OpenForm(New CategoryManagementForm())
+            },
+            New TileInfo With {
+                .Title = "සිංහල මාස නම්",
+                .Subtitle = "Edit Sinhala month name mappings",
+                .Emoji = "🗓",
+                .BackColor = Color.FromArgb(0, 128, 96),
+                .PermissionKey = PermissionKeys.SETTINGS_VIEW,
+                .ClickAction = Sub() OpenForm(New SinhalaMonthSettingsForm())
+            },
+            New TileInfo With {
+                .Title = "Manage Users",
+                .Subtitle = "Create, edit or disable user accounts",
+                .Emoji = "👥",
+                .BackColor = Color.FromArgb(100, 60, 160),
+                .PermissionKey = PermissionKeys.USER_CREATE,
+                .AltPermissionKey = PermissionKeys.USER_EDIT,
+                .ClickAction = Sub() OpenForm(New UserManagementForm())
+            },
+            New TileInfo With {
+                .Title = "Backup && Restore",
+                .Subtitle = "Back up or restore the database",
+                .Emoji = "🗄",
+                .BackColor = Color.FromArgb(200, 120, 0),
+                .PermissionKey = PermissionKeys.BACKUP_DATABASE,
+                .ClickAction = Sub() OpenForm(New BackupForm())
+            },
+            New TileInfo With {
+                .Title = "Audit Log",
+                .Subtitle = "View recent system activity",
+                .Emoji = "📋",
+                .BackColor = Color.FromArgb(90, 90, 90),
+                .PermissionKey = PermissionKeys.AUDIT_VIEW,
+                .ClickAction = Sub() ShowAuditLog()
+            }
+        }
 
-    Private Sub UpdateStatus()
-        ' Email status
-        Dim emailEnabled = chkEmailEnabled.Checked
-        Dim emailConfigured = Not String.IsNullOrEmpty(txtSmtpHost.Text) AndAlso 
-                             Not String.IsNullOrEmpty(txtAdminEmail.Text)
-        
-        If emailEnabled AndAlso emailConfigured Then
-            lblEmailStatus.Text = "Status: ✓ Configured and Enabled"
-            lblEmailStatus.ForeColor = Color.Green
-            btnTestEmail.Enabled = True
-        ElseIf emailConfigured Then
-            lblEmailStatus.Text = "Status: Configured but Disabled"
-            lblEmailStatus.ForeColor = Color.Orange
-            btnTestEmail.Enabled = False
-        Else
-            lblEmailStatus.Text = "Status: Not Configured"
-            lblEmailStatus.ForeColor = Color.Red
-            btnTestEmail.Enabled = False
-        End If
+        ' ----- Filter by permission and add tiles -----
+        For Each tile In allTiles
+            Dim hasAccess As Boolean = SessionManager.HasPermission(tile.PermissionKey)
+            If Not hasAccess AndAlso Not String.IsNullOrEmpty(tile.AltPermissionKey) Then
+                hasAccess = SessionManager.HasPermission(tile.AltPermissionKey)
+            End If
 
-        ' WhatsApp status
-        Dim whatsAppEnabled = chkWhatsAppEnabled.Checked
-        Dim whatsAppConfigured = Not String.IsNullOrEmpty(txtTwilioSid.Text) AndAlso 
-                                Not String.IsNullOrEmpty(txtTwilioToken.Text) AndAlso
-                                Not String.IsNullOrEmpty(txtAdminWhatsApp.Text)
-        
-        If whatsAppEnabled AndAlso whatsAppConfigured Then
-            lblWhatsAppStatus.Text = "Status: ✓ Configured and Enabled"
-            lblWhatsAppStatus.ForeColor = Color.Green
-            btnTestWhatsApp.Enabled = True
-        ElseIf whatsAppConfigured Then
-            lblWhatsAppStatus.Text = "Status: Configured but Disabled"
-            lblWhatsAppStatus.ForeColor = Color.Orange
-            btnTestWhatsApp.Enabled = False
-        Else
-            lblWhatsAppStatus.Text = "Status: Not Configured"
-            lblWhatsAppStatus.ForeColor = Color.Red
-            btnTestWhatsApp.Enabled = False
+            If hasAccess Then
+                pnlContent.Controls.Add(CreateTilePanel(tile))
+            End If
+        Next
+
+        ' If nothing visible, show a friendly message
+        If pnlContent.Controls.Count = 0 Then
+            Dim lbl As New Label() With {
+                .Text = "You do not have access to any settings at this time.",
+                .Font = New Font("Segoe UI", 11, FontStyle.Italic),
+                .ForeColor = Color.Gray,
+                .AutoSize = True,
+                .Padding = New Padding(10, 30, 0, 0)
+            }
+            pnlContent.Controls.Add(lbl)
         End If
     End Sub
 
 #End Region
 
-#Region "Test Buttons"
+#Region "Tile UI Factory"
 
-    Private Sub btnTestEmail_Click(sender As Object, e As EventArgs) Handles btnTestEmail.Click
-        btnTestEmail.Enabled = False
-        btnTestEmail.Text = "Sending..."
-        Application.DoEvents()
+    ''' <summary>
+    ''' Builds a single rounded, hover-animated tile panel from a TileInfo.
+    ''' </summary>
+    Private Function CreateTilePanel(info As TileInfo) As Panel
+        Dim tileWidth As Integer = 220
+        Dim tileHeight As Integer = 140
 
-        Try
-            ' Send test notification
-            Dim result = _notificationService.SendOveruseNotification("Test Month", 26000, 25000)
-            
-            If result.EmailSent Then
-                MessageBox.Show("Test email sent successfully! Check the admin email inbox.", 
-                              "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            Else
-                MessageBox.Show("Failed to send test email. Please check SMTP settings in App.config.", 
-                              "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            End If
+        ' --- Outer container ---
+        Dim pnl As New Panel() With {
+            .Size = New Size(tileWidth, tileHeight),
+            .Margin = New Padding(8),
+            .Cursor = Cursors.Hand,
+            .Tag = info
+        }
 
-        Catch ex As Exception
-            MessageBox.Show($"Error sending test email: {ex.Message}", 
-                          "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-        Finally
-            btnTestEmail.Enabled = True
-            btnTestEmail.Text = "Test Email"
-        End Try
+        ' Custom paint with rounded corners and gradient
+        AddHandler pnl.Paint, Sub(s, pe)
+                                  Dim rect = New Rectangle(0, 0, pnl.Width - 1, pnl.Height - 1)
+                                  Dim path = RoundedRect(rect, 14)
+                                  pe.Graphics.SmoothingMode = SmoothingMode.AntiAlias
+
+                                  ' Gradient fill
+                                  Using brush As New LinearGradientBrush(rect, info.BackColor,
+                                      ControlPaint.Dark(info.BackColor, 0.15F), 45.0F)
+                                      pe.Graphics.FillPath(brush, path)
+                                  End Using
+
+                                  ' Subtle border
+                                  Using pen As New Pen(Color.FromArgb(60, Color.White), 1)
+                                      pe.Graphics.DrawPath(pen, path)
+                                  End Using
+                              End Sub
+
+        ' --- Emoji icon ---
+        Dim lblEmoji As New Label() With {
+            .Text = info.Emoji,
+            .Font = New Font("Segoe UI Emoji", 26, FontStyle.Regular),
+            .ForeColor = Color.White,
+            .BackColor = Color.Transparent,
+            .Location = New Point(16, 12),
+            .AutoSize = True
+        }
+
+        ' --- Title ---
+        Dim lblTileTitle As New Label() With {
+            .Text = info.Title,
+            .Font = New Font("Segoe UI", 11, FontStyle.Bold),
+            .ForeColor = Color.White,
+            .BackColor = Color.Transparent,
+            .Location = New Point(14, 68),
+            .Size = New Size(tileWidth - 28, 24),
+            .AutoSize = False
+        }
+
+        ' --- Subtitle ---
+        Dim lblSubtitle As New Label() With {
+            .Text = info.Subtitle,
+            .Font = New Font("Segoe UI", 8, FontStyle.Regular),
+            .ForeColor = Color.FromArgb(210, 230, 255),
+            .BackColor = Color.Transparent,
+            .Location = New Point(14, 94),
+            .Size = New Size(tileWidth - 28, 36),
+            .AutoSize = False
+        }
+
+        pnl.Controls.Add(lblEmoji)
+        pnl.Controls.Add(lblTileTitle)
+        pnl.Controls.Add(lblSubtitle)
+
+        ' --- Hover effect on ALL child controls ---
+        Dim wireHover = Sub(ctrl As Control)
+                             AddHandler ctrl.MouseEnter, Sub(s, ea)
+                                                             pnl.BackColor = Color.FromArgb(30, Color.White)
+                                                             pnl.Invalidate()
+                                                         End Sub
+                             AddHandler ctrl.MouseLeave, Sub(s, ea)
+                                                             pnl.BackColor = Color.Transparent
+                                                             pnl.Invalidate()
+                                                         End Sub
+                             AddHandler ctrl.Click, Sub(s, ea) info.ClickAction?.Invoke()
+                             ctrl.Cursor = Cursors.Hand
+                         End Sub
+
+        wireHover(pnl)
+        wireHover(lblEmoji)
+        wireHover(lblTileTitle)
+        wireHover(lblSubtitle)
+
+        Return pnl
+    End Function
+
+    ''' <summary>
+    ''' Returns a GraphicsPath for a rectangle with rounded corners.
+    ''' </summary>
+    Private Shared Function RoundedRect(rect As Rectangle, radius As Integer) As GraphicsPath
+        Dim path As New GraphicsPath()
+        Dim d As Integer = radius * 2
+        path.AddArc(rect.X, rect.Y, d, d, 180, 90)
+        path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90)
+        path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90)
+        path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90)
+        path.CloseFigure()
+        Return path
+    End Function
+
+#End Region
+
+#Region "Tile Actions"
+
+    Private Sub OpenForm(frm As Form)
+        Using frm
+            frm.ShowDialog(Me)
+        End Using
     End Sub
 
-    Private Sub btnTestWhatsApp_Click(sender As Object, e As EventArgs) Handles btnTestWhatsApp.Click
-        btnTestWhatsApp.Enabled = False
-        btnTestWhatsApp.Text = "Sending..."
-        Application.DoEvents()
-
+    Private Sub ShowAuditLog()
         Try
-            ' Send test notification
-            Dim result = _notificationService.SendOveruseNotification("Test Month", 26000, 25000)
-            
-            If result.WhatsAppSent Then
-                MessageBox.Show("Test WhatsApp message sent successfully! Check the admin WhatsApp.", 
-                              "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            Else
-                MessageBox.Show("Failed to send test WhatsApp. Please check Twilio settings in App.config.", 
-                              "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            End If
+            Dim auditRepo As New AuditLogRepository()
+            Dim auditService As New AuditService(auditRepo)
+            Dim logs = auditService.GetRecentActivity(50)
+            Dim logText = String.Join(Environment.NewLine,
+                logs.Select(Function(l) $"{l.ActionTimestamp:dd/MM/yyyy HH:mm} | {l.ActionType} | {l.Details}"))
 
+            If String.IsNullOrWhiteSpace(logText) Then logText = "(No recent activity)"
+
+            MessageBox.Show(logText, "Recent Audit Log (Last 50)", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
-            MessageBox.Show($"Error sending test WhatsApp: {ex.Message}", 
-                          "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-        Finally
-            btnTestWhatsApp.Enabled = True
-            btnTestWhatsApp.Text = "Test WhatsApp"
+            MessageBox.Show($"Error loading audit log: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
@@ -163,11 +252,22 @@ Public Class AdminSettingsForm
         Me.Close()
     End Sub
 
-    Private Sub btnSinhalaMonths_Click(sender As Object, e As EventArgs) Handles btnSinhalaMonths.Click
-        Using frm As New SinhalaMonthSettingsForm()
-            frm.ShowDialog(Me)
-        End Using
-    End Sub
+#End Region
+
+#Region "TileInfo Helper Class"
+
+    ''' <summary>
+    ''' Data class describing a single settings tile.
+    ''' </summary>
+    Private Class TileInfo
+        Public Property Title As String
+        Public Property Subtitle As String
+        Public Property Emoji As String
+        Public Property BackColor As Color
+        Public Property PermissionKey As String
+        Public Property AltPermissionKey As String
+        Public Property ClickAction As Action
+    End Class
 
 #End Region
 

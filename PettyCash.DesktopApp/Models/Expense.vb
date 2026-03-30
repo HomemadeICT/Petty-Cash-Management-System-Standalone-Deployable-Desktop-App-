@@ -68,33 +68,48 @@ Public Class Expense
     ''' </summary>
     Public Property DeletedAt As DateTime?
 
+    ''' <summary>
+    ''' The month this expense is assigned to for reporting (1-12).
+    ''' May differ from EntryDate.Month for cross-month posting (e.g., Dec 15-31 → January).
+    ''' </summary>
+    Public Property ReportMonth As Integer
+
+    ''' <summary>
+    ''' The year this expense is assigned to for reporting.
+    ''' May differ from EntryDate.Year for cross-month posting (e.g., Dec 2025 → Jan 2026).
+    ''' </summary>
+    Public Property ReportYear As Integer
+
 #End Region
 
 #Region "Computed Properties"
 
     ''' <summary>
-    ''' Returns the year of the entry date.
+    ''' Returns the report year (the year this expense is assigned to for reporting).
     ''' </summary>
     Public ReadOnly Property EntryYear As Integer
         Get
-            Return EntryDate.Year
+            Return If(ReportYear > 0, ReportYear, EntryDate.Year)
         End Get
     End Property
 
     ''' <summary>
-    ''' Returns the month of the entry date.
+    ''' Returns the report month (the month this expense is assigned to for reporting).
     ''' </summary>
     Public ReadOnly Property EntryMonth As Integer
         Get
-            Return EntryDate.Month
+            Return If(ReportMonth > 0, ReportMonth, EntryDate.Month)
         End Get
     End Property
 
     ''' <summary>
-    ''' Returns the month name (e.g., "February 2026").
+    ''' Returns the report month name (e.g., "January 2026").
     ''' </summary>
     Public ReadOnly Property MonthName As String
         Get
+            If ReportYear > 0 AndAlso ReportMonth > 0 Then
+                Return New Date(ReportYear, ReportMonth, 1).ToString("MMMM yyyy")
+            End If
             Return EntryDate.ToString("MMMM yyyy")
         End Get
     End Property
@@ -104,7 +119,7 @@ Public Class Expense
     ''' </summary>
     Public ReadOnly Property IsHighValue As Boolean
         Get
-            Return Amount >= ValidationService.HIGH_VALUE_THRESHOLD
+            Return Amount >= Constants.HIGH_VALUE_THRESHOLD
         End Get
     End Property
 
@@ -123,6 +138,8 @@ Public Class Expense
             .CategoryCode = Me.CategoryCode,
             .Description = Me.Description,
             .Amount = Me.Amount,
+            .ReportMonth = Me.ReportMonth,
+            .ReportYear = Me.ReportYear,
             .CreatedBy = Me.CreatedBy,
             .CreatedAt = Me.CreatedAt,
             .UpdatedAt = Me.UpdatedAt,

@@ -1,4 +1,4 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class ExpenseEntryForm
     Inherits System.Windows.Forms.Form
 
@@ -27,6 +27,7 @@ Partial Class ExpenseEntryForm
         lblDescLabel = New Label()
         cboCategory = New ComboBox()
         lblCategoryLabel = New Label()
+        btnManageCategory = New Button()
         txtBillNo = New TextBox()
         lblBillNoLabel = New Label()
         dtpEntryDate = New DateTimePicker()
@@ -51,6 +52,7 @@ Partial Class ExpenseEntryForm
         pnlMain.Controls.Add(txtDescription)
         pnlMain.Controls.Add(lblDescLabel)
         pnlMain.Controls.Add(cboCategory)
+        pnlMain.Controls.Add(btnManageCategory)
         pnlMain.Controls.Add(lblCategoryLabel)
         pnlMain.Controls.Add(txtBillNo)
         pnlMain.Controls.Add(lblBillNoLabel)
@@ -125,8 +127,22 @@ Partial Class ExpenseEntryForm
         cboCategory.Location = New Point(29, 203)
         cboCategory.Margin = New Padding(3, 4, 3, 4)
         cboCategory.Name = "cboCategory"
-        cboCategory.Size = New Size(439, 31)
+        cboCategory.Size = New Size(360, 31)
         cboCategory.TabIndex = 6
+        ' 
+        ' btnManageCategory
+        ' 
+        btnManageCategory.BackColor = Color.FromArgb(CByte(70), CByte(130), CByte(180))
+        btnManageCategory.FlatAppearance.BorderSize = 0
+        btnManageCategory.FlatStyle = FlatStyle.Flat
+        btnManageCategory.Font = New Font("Segoe UI", 9F, FontStyle.Bold)
+        btnManageCategory.ForeColor = Color.White
+        btnManageCategory.Location = New Point(400, 203)
+        btnManageCategory.Name = "btnManageCategory"
+        btnManageCategory.Size = New Size(68, 31)
+        btnManageCategory.TabIndex = 12
+        btnManageCategory.Text = "⚙ Edit"
+        btnManageCategory.UseVisualStyleBackColor = False
         ' 
         ' lblCategoryLabel
         ' 
@@ -285,6 +301,7 @@ Partial Class ExpenseEntryForm
     Friend WithEvents txtBillNo As TextBox
     Friend WithEvents lblCategoryLabel As Label
     Friend WithEvents cboCategory As ComboBox
+    Friend WithEvents btnManageCategory As Button
     Friend WithEvents lblDescLabel As Label
     Friend WithEvents txtDescription As TextBox
     Friend WithEvents lblAmountLabel As Label

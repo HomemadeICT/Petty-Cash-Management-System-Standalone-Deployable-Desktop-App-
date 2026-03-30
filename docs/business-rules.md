@@ -86,9 +86,9 @@
 **Message:** "Multiple high-value bills this month"
 
 ### BR5: Valid Category
-**Rule:** Category must be E5200, E5300, E7800, or E7510  
-**Type:** Hard limit  
-**Message:** "Invalid category code"
+**Rule:** Category must exist in the database  
+**Type:** Dynamic (Admin defined)  
+**Message:** "Invalid or undefined category code"
 
 ### BR6: Unique Bill Number
 **Rule:** Bill number unique per month  
@@ -99,6 +99,7 @@
 **Rule:** Entry date ≤ today  
 **Type:** Hard limit  
 **Message:** "Cannot enter future dates"
+**Note:** Past dates are fully allowed for any reporting month (User Freedom).
 
 ### BR8: Description Length
 **Rule:** Description ≥ 10 characters  
@@ -107,8 +108,19 @@
 
 ### BR9: Finalized Month Lock
 **Rule:** No edits to finalized months  
-**Type:** Hard limit  
+**Type:** Advisory (Bypass enabled)  
 **Message:** "This month has been finalized"
+**Note:** As per special requirement from ES Sir, users have the authority to add or edit expenses in any month "without hassle" to ensure reporting flexibility.
+
+### BR10: Reporting Month
+**Rule:** Expenses are tracked by "Report Month" rather than "Transaction Date"  
+**Type:** Logic  
+**Note:** When adding an expense, the system assigns it to the target month currently viewed on the dashboard, regardless of the physical calendar date.
+
+### BR11: December Cross-Month Rule
+**Rule:** Expenses from December 15th to December 31st can be reported in January  
+**Type:** Business Logic  
+**Note:** Due to the annual report processing schedule, the system allows back-dating January reports to include transactions from the latter half of the previous December.
 
 ---
 
@@ -118,7 +130,7 @@
 2. SQLite sufficient for data volume
 3. LAN always available during working hours
 4. Single reporting officer workflow
-5. Categories are fixed (no dynamic additions in MVP)
+5. Categories are managed by Admin (dynamic additions allowed)
 
 ---
 

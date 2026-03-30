@@ -28,6 +28,7 @@ Public Class UserPermissionForm
 #Region "Form Events"
 
     Private Sub UserPermissionForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        FormIconHelper.ApplyIcon(Me, FormIconHelper.FormType.Permissions)
         LoadPermissions()
     End Sub
 

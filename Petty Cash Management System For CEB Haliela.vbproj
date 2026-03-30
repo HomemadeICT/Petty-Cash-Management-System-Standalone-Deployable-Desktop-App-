@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -50,9 +50,7 @@
     <Compile Include="PettyCash.DesktopApp\Forms\ExpenseEntryForm.Designer.vb">
       <DependentUpon>ExpenseEntryForm.vb</DependentUpon>
     </Compile>
-    <Compile Include="PettyCash.DesktopApp\Forms\ReportViewerForm.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\ReportViewerForm.vb" />
     <Compile Include="PettyCash.DesktopApp\Forms\ReportViewerForm.Designer.vb">
       <DependentUpon>ReportViewerForm.vb</DependentUpon>
     </Compile>
@@ -95,6 +93,13 @@
     <Compile Include="PettyCash.DesktopApp\Forms\SinhalaMonthSettingsForm.Designer.vb">
       <DependentUpon>SinhalaMonthSettingsForm.vb</DependentUpon>
     </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\MonthYearPickerForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PettyCash.DesktopApp\Forms\CategoryManagementForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="PettyCash.DesktopApp\Forms\BulkExportForm.resx" />
     
     <!-- Form Resources -->
     <EmbeddedResource Include="PettyCash.DesktopApp\Forms\LoginForm.resx">
@@ -106,6 +111,7 @@
     <EmbeddedResource Include="PettyCash.DesktopApp\Forms\ExpenseEntryForm.resx">
       <DependentUpon>ExpenseEntryForm.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="PettyCash.DesktopApp\Forms\MonthYearPickerForm.resx" />
     <EmbeddedResource Include="PettyCash.DesktopApp\Forms\ReportViewerForm.resx">
       <DependentUpon>ReportViewerForm.vb</DependentUpon>
     </EmbeddedResource>
@@ -159,6 +165,7 @@
     <Compile Include="PettyCash.DesktopApp\Utilities\ReportHtmlGenerator.vb" />
     <Compile Include="PettyCash.DesktopApp\Utilities\PermissionKeys.vb" />
     <Compile Include="PettyCash.DesktopApp\Utilities\SinhalaMonthSettings.vb" />
+    <Compile Include="PettyCash.DesktopApp\Utilities\FormIconHelper.vb" />
     
     <!-- Program Entry Point -->
     <Compile Include="PettyCash.DesktopApp\Program.vb" />
@@ -170,6 +177,9 @@
       <Link>App.config</Link>
     </None>
     <None Include="SQL\schema_sqlite.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\Icons\PettyCash..ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

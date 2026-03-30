@@ -31,6 +31,7 @@ Partial Class BackupForm
         Me.grpHistory = New System.Windows.Forms.GroupBox()
         Me.lstBackups = New System.Windows.Forms.ListBox()
         Me.btnRefreshList = New System.Windows.Forms.Button()
+        Me.btnRestore = New System.Windows.Forms.Button()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.pnlHeader.SuspendLayout()
         Me.grpBackup.SuspendLayout()
@@ -148,6 +149,7 @@ Partial Class BackupForm
         '
         Me.grpHistory.Controls.Add(Me.lstBackups)
         Me.grpHistory.Controls.Add(Me.btnRefreshList)
+        Me.grpHistory.Controls.Add(Me.btnRestore)
         Me.grpHistory.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.grpHistory.ForeColor = System.Drawing.Color.FromArgb(0, 51, 102)
         Me.grpHistory.Location = New System.Drawing.Point(20, 260)
@@ -181,6 +183,20 @@ Partial Class BackupForm
         Me.btnRefreshList.TabIndex = 1
         Me.btnRefreshList.Text = "Refresh"
         Me.btnRefreshList.UseVisualStyleBackColor = False
+        '
+        'btnRestore
+        '
+        Me.btnRestore.BackColor = System.Drawing.Color.FromArgb(200, 120, 0)
+        Me.btnRestore.FlatAppearance.BorderSize = 0
+        Me.btnRestore.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnRestore.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
+        Me.btnRestore.ForeColor = System.Drawing.Color.White
+        Me.btnRestore.Location = New System.Drawing.Point(125, 165)
+        Me.btnRestore.Name = "btnRestore"
+        Me.btnRestore.Size = New System.Drawing.Size(150, 28)
+        Me.btnRestore.TabIndex = 2
+        Me.btnRestore.Text = "🔄 Restore Selected"
+        Me.btnRestore.UseVisualStyleBackColor = False
         '
         'btnClose
         '
@@ -233,6 +249,7 @@ Partial Class BackupForm
     Friend WithEvents grpHistory As System.Windows.Forms.GroupBox
     Friend WithEvents lstBackups As System.Windows.Forms.ListBox
     Friend WithEvents btnRefreshList As System.Windows.Forms.Button
+    Friend WithEvents btnRestore As System.Windows.Forms.Button
     Friend WithEvents btnClose As System.Windows.Forms.Button
 
 End Class

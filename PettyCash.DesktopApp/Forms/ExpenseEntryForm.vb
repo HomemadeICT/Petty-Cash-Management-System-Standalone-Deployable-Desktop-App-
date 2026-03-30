@@ -1,4 +1,4 @@
-﻿' ============================================================================
+' ============================================================================
 ' ExpenseEntryForm.vb - Expense Entry Form Code-Behind
 ' Petty Cash Management System
 ' ============================================================================
@@ -17,6 +17,7 @@ Public Class ExpenseEntryForm
     Private _expenseService As ExpenseService
     Private _validationService As ValidationService
     Private _notificationService As NotificationService
+    Private _categoryRepo As CategoryRepository
 #End Region
 
 #Region "Constructor"
@@ -34,22 +35,32 @@ Public Class ExpenseEntryForm
 #Region "Form Events"
 
     Private Sub ExpenseEntryForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        FormIconHelper.ApplyIcon(Me, FormIconHelper.FormType.ExpenseEntry)
         ' Initialize services
         InitializeServices()
 
         ' Load categories
         LoadCategories()
 
-        ' Set form title
+        ' Set form title and date range
         If _isEdit Then
             lblTitle.Text = "Edit Expense"
             Me.Text = "Edit Expense"
             LoadExpenseData()
+            
+            ' For edits, we allow any date up to today, but the report month is fixed
+            dtpEntryDate.MaxDate = Date.Today
         Else
             lblTitle.Text = "Add Expense"
-            dtpEntryDate.Value = Date.Today
-            dtpEntryDate.MaxDate = Date.Today
             cboCategory.SelectedIndex = 0
+            
+            ' USER FREEDOM: Allow picking any date in the past for any reporting month.
+            ' Decouples transaction date from reporting period as per ES Sir's request.
+            dtpEntryDate.MinDate = New Date(2000, 1, 1)
+            dtpEntryDate.MaxDate = Date.Today
+            
+            Dim targetMonthEnd As New Date(_targetYear, _targetMonth, Date.DaysInMonth(_targetYear, _targetMonth))
+            dtpEntryDate.Value = If(Date.Today < targetMonthEnd, Date.Today, targetMonthEnd)
         End If
 
         ' Update remaining balance info
@@ -67,6 +78,7 @@ Public Class ExpenseEntryForm
         Dim expenseRepo As New ExpenseRepository()
         Dim auditRepo As New AuditLogRepository()
 
+        _categoryRepo = New CategoryRepository()
         _validationService = New ValidationService(expenseRepo)
         Dim auditService As New AuditService(auditRepo)
         _expenseService = New ExpenseService(expenseRepo, _validationService, auditService)
@@ -78,15 +90,33 @@ Public Class ExpenseEntryForm
 #Region "Data Loading"
 
     Private Sub LoadCategories()
+        Dim selectedCode As String = ""
+        If cboCategory.SelectedItem IsNot Nothing Then
+            selectedCode = DirectCast(cboCategory.SelectedItem, CategoryItem).Code
+        End If
+
         cboCategory.Items.Clear()
 
-        ' Add category items
-        cboCategory.Items.Add(New CategoryItem("E5200", "E5200 - Vehicle Parts"))
-        cboCategory.Items.Add(New CategoryItem("E5300", "E5300 - Office Items"))
-        cboCategory.Items.Add(New CategoryItem("E7800", "E7800 - Physical Hardware"))
-        cboCategory.Items.Add(New CategoryItem("E7510", "E7510 - Treatments & Staff"))
+        ' Load from database dynamically
+        Dim categories = _categoryRepo.GetAll()
+        For Each cat In categories
+            cboCategory.Items.Add(New CategoryItem(cat.CategoryCode, $"{cat.CategoryCode} - {cat.CategoryName}"))
+        Next
 
         cboCategory.DisplayMember = "DisplayName"
+
+        ' Restore previous selection or default to first
+        If cboCategory.Items.Count > 0 Then
+            cboCategory.SelectedIndex = 0
+            If Not String.IsNullOrEmpty(selectedCode) Then
+                For i = 0 To cboCategory.Items.Count - 1
+                    If DirectCast(cboCategory.Items(i), CategoryItem).Code = selectedCode Then
+                        cboCategory.SelectedIndex = i
+                        Exit For
+                    End If
+                Next
+            End If
+        End If
     End Sub
 
     Private Sub LoadExpenseData()
@@ -214,6 +244,8 @@ Public Class ExpenseEntryForm
             .CategoryCode = categoryItem.Code,
             .Description = txtDescription.Text.Trim(),
             .Amount = amount,
+            .ReportMonth = If(_isEdit AndAlso _expense IsNot Nothing, _expense.ReportMonth, _targetMonth),
+            .ReportYear = If(_isEdit AndAlso _expense IsNot Nothing, _expense.ReportYear, _targetYear),
             .CreatedBy = SessionManager.CurrentUserId
         }
 
@@ -257,6 +289,18 @@ Public Class ExpenseEntryForm
                 _notificationService.SendHighValueWarning(expense.BillNo, expense.Amount, monthName)
             End If
         End If
+    End Sub
+
+#End Region
+
+#Region "Category Management Button"
+
+    Private Sub btnManageCategory_Click(sender As Object, e As EventArgs) Handles btnManageCategory.Click
+        Using frm As New CategoryManagementForm()
+            frm.ShowDialog(Me)
+        End Using
+        ' Reload categories after management
+        LoadCategories()
     End Sub
 
 #End Region

@@ -7,7 +7,7 @@
 ## 🗄 Database Backup
 
 ### Overview
-The Database Backup feature allows administrators to create **full SQL Server `.bak` backup files** of the Petty Cash database. This protects against data loss and enables disaster recovery.
+The Database Backup feature allows administrators to create **portable SQLite database backups**. This protects against data loss and enables disaster recovery.
 
 ### Who Can Use This?
 - **Administrators** only (requires `BACKUP_DATABASE` permission)
@@ -27,20 +27,31 @@ The Database Backup feature allows administrators to create **full SQL Server `.
 
 | Property         | Detail                                      |
 | ---------------- | ------------------------------------------- |
-| Format           | SQL Server `.bak` (full backup)             |
+| Format           | SQLite Database (`.sqlite` / `.sqlite_bak`) |
 | Default folder   | `C:\Users\<you>\Documents\PettyCashBackups` |
-| Naming pattern   | `PettyCash_Backup_YYYYMMDD_HHmmss.bak`     |
-| Timeout          | 5 minutes max                               |
+| Naming pattern   | `PettyCash_Backup_YYYYMMDD_HHmmss.sqlite_bak` |
+| Timeout          | Insignificant (very fast)                   |
 
 ### Backup History
-The lower section of the Backup form shows all `.bak` files in the selected folder, sorted by newest first. Click **Refresh** to update the list.
-
-### Recommended Schedule
-
-> [!TIP]
-> Back up the database **at least once per month**, ideally on the last working day before any server patching or OS updates.
+The lower section of the Backup form shows all backup files in the selected folder.
 
 ---
+
+## 🔄 Database Restore
+
+### Overview
+Administrators can restore the system to a previous state using any valid backup file.
+
+> [!CAUTION]
+> **RESTORE OVERWRITES DATA**: Restoring a database completely replaces your current records with the data from the backup file. This cannot be undone.
+
+### How to Restore
+1. Open the **Backup DB** form.
+2. Ensure the **Source Folder** is pointing to your backups.
+3. Select a backup record from the table.
+4. Click **🔄 Restore Selected**.
+5. Confirm the warning prompt.
+6. The application will notify you on success.
 
 ## 📊 Export Report to Excel (XLSX)
 
@@ -72,6 +83,15 @@ The exported file contains **two sheets**:
 | Category Name   | Human-readable category          |
 | Description     | Item description                 |
 | Amount (LKR)    | Amount in Sri Lankan Rupees      |
+
+#### Professional Excel Features
+The exported files are designed for professional use:
+- **Strictly Numeric**: Amounts are exported as numbers (not text), eliminating "green corner" warnings in Excel.
+- **Dynamic Formulas**: Grand totals and summary sentences use Excel formulas (e.g., `SUM()`). If you manually change a value in the spreadsheet, the totals and the Sinhala request text will update automatically.
+- **Adaptive Paper Layout**: 
+    - **Portrait**: Used for standard reports.
+    - **Landscape**: Automatically applied if the number of expense categories exceeds the width of standard A4 portrait.
+- **Accounting Formatting**: Zero values are displayed as a clean dash (`-`).
 
 - Rows are sorted by date then bill number
 - A **Grand Total** row appears at the bottom

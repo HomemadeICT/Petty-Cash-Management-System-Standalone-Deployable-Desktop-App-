@@ -32,6 +32,7 @@ Public Class SinhalaMonthSettingsForm
 #Region "Form Events"
 
     Private Sub SinhalaMonthSettingsForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        FormIconHelper.ApplyIcon(Me, FormIconHelper.FormType.MonthPicker)
         LoadCurrentNames()
     End Sub
 

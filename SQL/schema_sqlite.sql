@@ -44,6 +44,8 @@ CREATE TABLE IF NOT EXISTS petty_cash_entries (
     category_code TEXT NOT NULL,
     description TEXT NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
+    report_month INTEGER,
+    report_year INTEGER,
     created_by INTEGER NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP,

@@ -17,6 +17,7 @@ Public Class UserManagementForm
 #Region "Form Events"
 
     Private Sub UserManagementForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        FormIconHelper.ApplyIcon(Me, FormIconHelper.FormType.UserManagement)
         ' Initialize services
         Dim userRepo As New UserRepository()
         Dim permissionRepo As New PermissionRepository()

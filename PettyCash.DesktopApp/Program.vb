@@ -99,6 +99,61 @@ Public Module Program
         Catch ex As Exception
             Throw New Exception("Failed to execute database schema script: " & ex.Message, ex)
         End Try
+
+        ' Run migrations for existing databases
+        MigrateReportMonthColumns()
+    End Sub
+
+    ''' <summary>
+    ''' Adds report_month and report_year columns if they don't exist yet (migration for existing DBs).
+    ''' Then backfills any NULL values using the entry_date, applying the Dec 15-31 → January rule.
+    ''' Safe to run on every startup.
+    ''' </summary>
+    Private Sub MigrateReportMonthColumns()
+        Try
+            ' SQLite doesn't have IF NOT EXISTS for ALTER TABLE, so we check pragma first
+            Dim hasColumn As Boolean = False
+            Using conn = DbContext.GetConnection()
+                Using cmd As New System.Data.SQLite.SQLiteCommand("PRAGMA table_info(petty_cash_entries)", conn)
+                    Using reader = cmd.ExecuteReader()
+                        While reader.Read()
+                            If reader("name").ToString().Equals("report_month", StringComparison.OrdinalIgnoreCase) Then
+                                hasColumn = True
+                                Exit While
+                            End If
+                        End While
+                    End Using
+                End Using
+            End Using
+
+            ' Add columns if they don't exist
+            If Not hasColumn Then
+                DbContext.ExecuteNonQuery("ALTER TABLE petty_cash_entries ADD COLUMN report_month INTEGER")
+                DbContext.ExecuteNonQuery("ALTER TABLE petty_cash_entries ADD COLUMN report_year INTEGER")
+            End If
+
+            ' Backfill any NULL report_month/report_year values from entry_date
+            ' Rule: Dec 15-31 → January of next year; all other dates → their natural month
+            DbContext.ExecuteNonQuery("
+                UPDATE petty_cash_entries 
+                SET report_month = CASE
+                        WHEN CAST(strftime('%m', entry_date) AS INTEGER) = 12 
+                             AND CAST(strftime('%d', entry_date) AS INTEGER) >= 15 
+                        THEN 1
+                        ELSE CAST(strftime('%m', entry_date) AS INTEGER)
+                    END,
+                    report_year = CASE
+                        WHEN CAST(strftime('%m', entry_date) AS INTEGER) = 12 
+                             AND CAST(strftime('%d', entry_date) AS INTEGER) >= 15 
+                        THEN CAST(strftime('%Y', entry_date) AS INTEGER) + 1
+                        ELSE CAST(strftime('%Y', entry_date) AS INTEGER)
+                    END
+                WHERE report_month IS NULL OR report_year IS NULL")
+
+        Catch ex As Exception
+            ' Log but don't block startup
+            Console.WriteLine("Warning: Could not migrate report month columns. " & ex.Message)
+        End Try
     End Sub
 
 

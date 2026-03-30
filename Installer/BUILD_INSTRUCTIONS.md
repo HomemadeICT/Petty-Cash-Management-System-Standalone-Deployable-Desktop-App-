@@ -1,6 +1,8 @@
 # 🔨 Installer Build Instructions (SQLite Edition)
 
 > **No SQL Server. No .NET Runtime. ~50 MB single installer.**
+> [!CAUTION]
+> **IMPORTANT:** Simply clicking "Build" in Visual Studio is NOT enough to update the installer. You MUST run the `dotnet publish` command in Step 1 below every time you make code changes, otherwise Inno Setup will package your **old codebase**.
 
 ---
 
@@ -91,6 +93,7 @@ Test on a **clean Windows PC** (one without Visual Studio / .NET SDK):
 | "File not found" on compile | Make sure Step 1 (publish) was completed first |
 | "unable to load SQLite.Interop.dll" | The `x64\SQLite.Interop.dll` is missing from publish output — re-run publish |
 | Login works but CRUD fails | The `.exe.config` copy step in installer failed — re-install as Administrator |
+| Installer has "old" code | You skipped Step 1 (Publish). Re-run the `dotnet publish` command to sync latest code |
 | Installer won't compile | Ensure Inno Setup 6 is installed (`%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe`) |
 
 ---
